@@ -3327,6 +3327,12 @@ function syncNow(){
 }
 function pull(){
   return sbFetch("/rest/v1/docs?select=key,value,updated_at",undefined,true).then(function(rows){
+    // Break, the app Dayline grew from, syncs the same way and names its rows
+    // the same, so its project would pass Connect. Its rows are never taken
+    // in or written over: a project holding them is turned away here, before
+    // anything is read or sent.
+    if((rows||[]).some(function(r){return r.key==="climbs";})){
+      var no=new Error("That project holds Break's data. Use a project of Dayline's own: Use a different project.");no.status=409;throw no;}
     // On a phone that hasn't synced with this account before, the cloud's copy
     // wins, unless it holds nothing and this phone has the real thing. After
     // that, whichever changed last.
@@ -3466,12 +3472,30 @@ el("sb-change").addEventListener("click",openGuide);
 el("g-x").addEventListener("click",function(){sheetShut(el("g-sheet"));});
 el("g-sheet").addEventListener("click",function(e){if(e.target===this)sheetShut(this);});
 el("g-copy-sql").addEventListener("click",function(){copyText(TEXT["supabase/setup.sql"],this);});
+// The project's address from whatever was copied: the Project URL itself, the
+// same with a path after it or without its https://, the dashboard's address
+// for the project, or only the project's id (20 letters).
+function projectURL(s){
+  s=String(s||"").replace(/\s+/g,"");
+  var m=/^(?:https?:\/\/)?([a-z0-9-]+)\.supabase\.(co|in)(?:[\/?#].*)?$/i.exec(s)||
+    /supabase\.com\/dashboard\/project\/([a-z0-9]{20})(?:[\/?#].*)?$/i.exec(s)||/^([a-z]{20})$/i.exec(s);
+  return m?"https://"+m[1].toLowerCase()+".supabase."+(m[2]||"co").toLowerCase():"";
+}
+// What a legacy key (a JWT) says inside: its role and its project.
+function keyClaims(k){try{return JSON.parse(atob(k.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")))||{};}catch(e){return {};}}
 // Connect checks the address and the key against the docs table before
-// keeping them, so a typo or a skipped step 2 says so here.
+// keeping them, so a typo or a skipped step 2 says so here. The usual slips
+// are put right on the way: spaces and line breaks in a pasted key, the two
+// pasted into each other's box, an address with more on the end.
 el("g-connect").addEventListener("click",function(){
-  var url=el("g-url").value.trim().replace(/\/+$/,""),k=el("g-key").value.trim(),btn=this;
-  if(!/^https:\/\/[a-z0-9-]+\.supabase\.(co|in)$/i.test(url)){gErr("That doesn't look like a Project URL. It's https://, your project's id, then .supabase.co");return;}
+  var u=el("g-url").value.replace(/\s+/g,""),k=el("g-key").value.replace(/\s+/g,""),btn=this;
+  if(!projectURL(u)&&projectURL(k)&&/^(sb_|eyJ)/.test(u)){var sw=u;u=k;k=sw;}
+  var url=projectURL(u),c=keyClaims(k);
+  if(!url){gErr("That doesn't look like your Project URL. It looks like https://abcdefghijklmnopqrst.supabase.co, and it's on the Data API page.");return;}
+  el("g-url").value=url;el("g-key").value=k;
+  if(/^sb_secret_/i.test(k)||c.role==="service_role"){gErr("That's the secret key, which must never go in an app. Copy the publishable key instead: it starts sb_publishable_.");return;}
   if(k.length<20){gErr("Paste the publishable key (it starts sb_publishable_) or the anon public key (it starts eyJ).");return;}
+  if(c.ref&&url.split("//")[1].split(".")[0]!==c.ref){gErr("That key is for a different project. Copy the key from the same project as the URL.");return;}
   btn.disabled=true;gErr("");
   fetch(url+"/rest/v1/docs?select=key&limit=1",{headers:{apikey:k},cache:"no-store"})
   .then(function(r){return r.text().then(function(t){return {ok:r.ok,status:r.status,t:t};});})
@@ -3483,10 +3507,12 @@ el("g-connect").addEventListener("click",function(){
       sheetShut(el("g-sheet"));renderSync();renderRemind();toast("Connected. Now make your account.");
       setTimeout(function(){el("sync-email").focus();},350);return;
     }
-    gErr(x.status===401||x.status===403?"Supabase didn't take that key. Copy the publishable or anon key again."
+    // A free project that's gone unused for a week is paused until you restore it.
+    gErr(x.status===540||/paused/i.test(x.t)?"The project is paused. Restore it in the Supabase dashboard, then tap Connect again."
+      :x.status===401||x.status===403?"Supabase didn't take that key. Copy the publishable or anon key again."
       :x.status===404||/relation|does not exist|schema cache|PGRST20/i.test(x.t)?"The project is there, but Dayline's tables aren't yet. Do step 2, then tap Connect again."
       :"Supabase answered "+x.status+". Check the URL and the key.");
-  },function(){gErr("Couldn't reach that address. Check the URL and your connection.");})
+  },function(){gErr(navigator.onLine===false?"No connection. Try again once you're online.":"Couldn't reach "+url+". Check the project id in it, letter by letter.");})
   .then(function(){btn.disabled=false;});
 });
 
