@@ -2003,7 +2003,10 @@ function toggleTask(id){
 // Attachments live in this phone's IndexedDB, one record per file, and in your
 // own Supabase's private "files" store while Sync is on. Photos are scaled to
 // a 2000px long edge, which keeps a whiteboard legible at a fraction of the size.
-var FILE_MAX=10485760,fdbp=null,furls={};
+// fileHold: files no assignment lists right now that must stay anyway: ones
+// being saved, and ones taken out whose Undo hasn't gone yet. Sync lets go of
+// any other file nothing uses, such as one deleted on your other phone.
+var FILE_MAX=10485760,fdbp=null,furls={},fileHold={};
 function fdb(){if(fdbp)return fdbp;fdbp=new Promise(function(res,rej){try{
   if(!window.indexedDB){rej(new Error("no idb"));return;}var r=indexedDB.open("dayline-files",1);
   r.onupgradeneeded=function(){if(!r.result.objectStoreNames.contains("files"))r.result.createObjectStore("files");};
@@ -2114,8 +2117,10 @@ el("a-form").addEventListener("submit",function(e){e.preventDefault();
   if(was&&!prev){closeTask();return;}   // deleted on another phone in the meantime
   var kept=pendingF.filter(function(p){return p.kept;}),fresh=pendingF.filter(function(p){return !p.kept;});
   el("a-save").disabled=true;
+  fresh.forEach(function(p){fileHold[p.f.id]=1;});
   Promise.all(fresh.map(function(p){return fput(p.f.id,p.blob).then(function(){return p.f;},function(){return null;});}))
   .then(function(stored){
+    fresh.forEach(function(p){delete fileHold[p.f.id];});
     var added=stored.filter(Boolean),lost=stored.length-added.length;
     var rec={id:was||newId(),title:title,course:el("a-course").value.trim(),due:date+"T"+time.slice(0,5),
       notes:el("a-notes").value.trim(),done:prev?prev.done||0:0,files:kept.map(function(p){return p.f;}).concat(added)};
@@ -2125,9 +2130,10 @@ el("a-form").addEventListener("submit",function(e){e.preventDefault();
     if(!prev){tasks=tasks.concat([rec]);save(K.tasks,tasks);dueChanged();
       toast("Added · due "+dueWhen(dueAt(rec))+miss);announce(rec.title+" added, due "+dueWhen(dueAt(rec)));return;}
     var gone=(prev.files||[]).filter(function(f){return !rec.files.some(function(g){return g.id===f.id;});});
+    gone.forEach(function(f){fileHold[f.id]=1;});
     tasks=tasks.map(function(t){return t.id===rec.id?rec:t;});save(K.tasks,tasks);dueChanged();announce("Saved");
-    var later=setTimeout(function(){gone.forEach(function(f){fdel(f.id).catch(function(){});fdrop(f.id);});},6500);
-    toast("Saved"+miss,function(){clearTimeout(later);
+    var later=setTimeout(function(){gone.forEach(function(f){delete fileHold[f.id];fdel(f.id).catch(function(){});fdrop(f.id);});},6500);
+    toast("Saved"+miss,function(){clearTimeout(later);gone.forEach(function(f){delete fileHold[f.id];});
       tasks=tasks.map(function(t){return t.id===prev.id?prev:t;});save(K.tasks,tasks);
       added.forEach(function(f){fdel(f.id).catch(function(){});fdrop(f.id);});dueChanged();announce("Changes undone");});
   });
@@ -2136,9 +2142,10 @@ el("a-hand").addEventListener("click",function(){var id=editingTask;closeTask();
 // Delete goes straight through, with an Undo rather than an "Are you sure?".
 el("a-delete").addEventListener("click",function(){
   var id=editingTask,t=tasks.filter(function(x){return x.id===id;})[0];closeTask();if(!t)return;
+  (t.files||[]).forEach(function(f){fileHold[f.id]=1;});
   tasks=tasks.filter(function(x){return x.id!==id;});save(K.tasks,tasks);dueChanged();announce(t.title+" deleted");
-  var later=setTimeout(function(){(t.files||[]).forEach(function(f){fdel(f.id).catch(function(){});fdrop(f.id);});},6500);
-  toast("Deleted",function(){clearTimeout(later);
+  var later=setTimeout(function(){(t.files||[]).forEach(function(f){delete fileHold[f.id];fdel(f.id).catch(function(){});fdrop(f.id);});},6500);
+  toast("Deleted",function(){clearTimeout(later);(t.files||[]).forEach(function(f){delete fileHold[f.id];});
     if(!tasks.some(function(x){return x.id===id;})){tasks=tasks.concat([t]);save(K.tasks,tasks);}
     dueChanged();announce(t.title+" is back");});
 });
@@ -3145,6 +3152,9 @@ function syncFiles(){
   var uid=sm.s.user,ids=fileIds(),failed=0,got=false;
   return ftx("readonly",function(s){return s.getAllKeys();}).then(function(k){return k||[];},function(){return [];}).then(function(keys){
     var here={};keys.forEach(function(k){here[k]=1;});
+    // A file no assignment uses any more, say one taken out on your other
+    // phone, is let go here too, unless it's being saved or its Undo is open.
+    keys.forEach(function(k){if(ids.indexOf(k)<0&&!fileHold[k]){fdel(k).catch(function(){});fdrop(k);delete fcache[k];}});
     var up=ids.filter(function(id){return here[id]&&!sm.fh[id];}),
         down=ids.filter(function(id){return !here[id]&&!missed[id];}),
         gone=Object.keys(sm.fh).filter(function(id){return ids.indexOf(id)<0;}),chain=Promise.resolve();
@@ -3381,7 +3391,12 @@ el("rem-test").addEventListener("click",function(){
   var ep=rpush.ep;rbusy=true;remMsg("");renderRemind();
   fresh().then(function(){return sbFetch("/functions/v1/remind",{test:true,endpoint:ep},true);})
   .then(function(){toast("Test sent. It should arrive in a few seconds.");},
-    function(e){remMsg(e.status===404?"Your project has no remind function yet. Do step 3 of the reminders setup."
+    // Supabase's own 404 means no function; the function's 404 means it doesn't
+    // know this phone. A 410 means the push service had dropped the phone, and
+    // your project has let it go too, so the phone signs up afresh from here.
+    function(e){if(e.status===410)stopPush(null);
+      remMsg(e.status===404&&/function was not found/i.test(e.message)?"Your project has no remind function yet. Do step 3 of the reminders setup."
+      :e.status===410?"This phone's sign-up had expired. Tap Turn on reminders to sign it up again."
       :e.status?e.message:"No connection. Try again once you're online.");})
   .then(function(){rbusy=false;renderRemind();remStatus();});
 });

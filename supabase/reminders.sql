@@ -1,6 +1,7 @@
 -- Dayline's reminders, in your own Supabase project. Run setup.sql first, then
--- this, in the SQL Editor. Copied from Dayline's Settings it already has your
--- project's address in place of YOUR_PROJECT_URL; from here, put it in by hand.
+-- this, in the SQL Editor. Copied from Dayline's Settings, the cron job below
+-- already has your project's address in it. Copied from here, put the address
+-- in by hand where the job calls the remind function.
 -- Running it again is safe. The sending itself is the remind Edge Function,
 -- in functions/remind.
 

@@ -359,6 +359,7 @@ async function send(s: Sub, n: Push, v: Signer, kept: Map<string, Token>): Promi
     if (!r.ok) {
       const t = await r.text().catch(() => "");
       try { why = JSON.parse(t).reason || t; } catch { why = t; }
+      why = String(why).trim();
     }
   } catch (e) { why = String((e as Error)?.message || e); }
   const row = "push_subs?endpoint=eq." + encodeURIComponent(s.endpoint), ok = status >= 200 && status < 300;
@@ -470,9 +471,11 @@ async function test(req: Request, endpoint: unknown) {
     key: "test", tab: "today", topic: "test", ttl: 300,
     title: "Reminders are on", body: "This is what they'll look like. Tap one to open Dayline.",
   }, v, await tokens());
-  return r.status >= 200 && r.status < 300
-    ? json({ ok: true })
-    : json({ error: r.status ? `The push service said ${r.status}${r.why ? " (" + r.why + ")" : ""}.` : "The push service didn't answer." }, 502);
+  if (r.status >= 200 && r.status < 300) return json({ ok: true });
+  // The push service no longer knows the phone, and send() has just let it go
+  // here too, so the fix is for the phone to sign up again.
+  if (r.status === 404 || r.status === 410) return json({ error: "This phone's sign-up for reminders has expired. Turn reminders on again." }, 410);
+  return json({ error: r.status ? `The push service said ${r.status}${r.why ? " (" + r.why + ")" : ""}.` : "The push service didn't answer." }, 502);
 }
 
 Deno.serve(async (req) => {
