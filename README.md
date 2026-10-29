@@ -95,8 +95,12 @@ Doing it on a computer is easiest. The steps:
 
 Reminders put block starts, due dates, exams and quizzes (a day before and an
 hour before) and prayer times on your lock screen while Dayline is closed. Your
-own project sends them, so it needs a few more pieces. In the home-screen app,
-open **Settings**, then **Reminders**, then **Set up reminders in Supabase**:
+own project sends them, so it needs a few more pieces.
+
+Set them up on a computer, where you paste into Supabase. Something copied on a
+phone can't be pasted on a computer. Open Dayline in the computer's browser,
+connect the same Supabase and sign in to the same account, then open
+**Settings**, then **Reminders**, then **Set up reminders in Supabase**:
 
 1. **Make a key.** Dayline makes a key pair for your project. Copy both halves.
 2. Run [`supabase/reminders.sql`](supabase/reminders.sql) in the SQL Editor. Copied
@@ -106,7 +110,11 @@ open **Settings**, then **Reminders**, then **Set up reminders in Supabase**:
    deploy it, then turn off **Verify JWT** in its settings.
 4. Under **Edge Functions**, **Secrets**, add `VAPID_PUBLIC_KEY` and
    `VAPID_PRIVATE_KEY`.
-5. Tap **Turn on reminders**, then **Send a test**.
+5. On your iPhone, in Dayline from the home screen: **Settings**, **Reminders**,
+   **Turn on reminders**, then **Send a test**.
+
+Each Copy button has a **Show it** underneath. If a browser won't copy, the
+text opens there, selected, to copy by hand.
 
 Choose which kinds come, how early, and your quiet hours, during which nothing
 comes. Reminders follow your phone's time zone.

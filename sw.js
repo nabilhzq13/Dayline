@@ -1,6 +1,6 @@
 /* Dayline — offline cache, and the reminders your own Supabase pushes.
    Bump CACHE when you change any file, so phones pick the new version up. */
-var CACHE = "dayline-v4";
+var CACHE = "dayline-v5";
 var FILES = [
   "./",
   "./index.html",

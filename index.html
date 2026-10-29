@@ -831,6 +831,8 @@
   .b-more summary{list-style:none;cursor:pointer;min-height:44px;display:flex;align-items:center;
     font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--lav-ink);border-radius:10px}
   .b-more summary::-webkit-details-marker{display:none}
+  .r-away{margin:var(--s3) 0 0;padding:var(--s3);border-radius:var(--radius-sm);background:var(--lav);color:var(--lav-ink);font-size:var(--t-footnote);line-height:1.45}
+  .r-away b{overflow-wrap:anywhere}
   .confirm.stack p{flex-basis:100%}  /* a long question gets its own line, both answers under it */
 
   .install{display:flex;gap:var(--s3);align-items:flex-start;padding:var(--s3) var(--s4);font-size:var(--t-footnote)}
@@ -1305,8 +1307,9 @@
       </div>
     </section>
 
-    <!-- Only in the home-screen app: it's the one place iOS lets a web app have push. -->
-    <section class="set-card hide" id="rem-card" aria-labelledby="rem-h">
+    <!-- Set up from anywhere, a computer most easily. Turned on only in the
+         home-screen app: it's the one place iOS lets a web app have push. -->
+    <section class="set-card" id="rem-card" aria-labelledby="rem-h">
       <h3 id="rem-h">Reminders</h3>
       <p class="b-status" id="rem-status" aria-live="polite">Off on this phone.</p>
       <p class="note" id="rem-note" style="margin:0 0 var(--s3)">Blocks, due dates and prayer times on your lock screen, even while Dayline is closed. Your own Supabase sends them, so they need Sync and a one-time setup in your project.</p>
@@ -1425,6 +1428,7 @@
       <button type="button" class="sheet-x" id="r-x" aria-label="Close"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 5 12 10.6 17.6 5 19 6.4 13.4 12 19 17.6 17.6 19 12 13.4 6.4 19 5 17.6 10.6 12 5 6.4Z"/></svg></i></button>
     </div>
     <p class="note" style="margin-top:0">Your project sends the reminders, so it needs a small function, a few more tables and a key of its own. About ten minutes, on a computer.</p>
+    <p class="r-away hide" id="r-away">Copying on a phone only reaches this phone. To paste on a computer, open <b id="r-here"></b> on the computer, connect the same Supabase and sign in, then open <b>Settings</b>, then <b>Reminders</b> there.</p>
     <ol class="steps">
       <li><b>Make a key.</b> Dayline makes a key pair for your project right here. Copy both halves for step 4.
         <div class="btns" style="margin-top:var(--s2)"><button type="button" class="btn" id="r-make">Make a key</button></div>
@@ -1435,11 +1439,13 @@
           <p class="note" style="margin:0">The private half is shown only now. Paste it into Supabase and nowhere else.</p>
         </div></li>
       <li><b>Add the reminder tables.</b> In <b>SQL Editor</b>, paste this in and press <b>Run</b>. It already has your project's address in it.
-        <div class="btns" style="margin-top:var(--s2)"><button type="button" class="btn" id="r-copy-sql">Copy the SQL</button></div></li>
+        <div class="btns" style="margin-top:var(--s2)"><button type="button" class="btn" id="r-copy-sql">Copy the SQL</button></div>
+        <details class="b-more"><summary>Show it</summary><textarea readonly id="r-sql" class="code" aria-label="The reminders SQL"></textarea></details></li>
       <li><b>Add the function.</b> Under <b>Edge Functions</b>, choose <b>Deploy a new function</b>, then <b>Via Editor</b>. Name it <b>remind</b>, replace the code with this, and deploy. Then, in its settings, turn off <b>Verify JWT</b> (sometimes called <b>Enforce JWT verification</b>).
-        <div class="btns" style="margin-top:var(--s2)"><button type="button" class="btn" id="r-copy-fn">Copy the function</button></div></li>
+        <div class="btns" style="margin-top:var(--s2)"><button type="button" class="btn" id="r-copy-fn">Copy the function</button></div>
+        <details class="b-more"><summary>Show it</summary><textarea readonly id="r-fn" class="code" aria-label="The remind function"></textarea></details></li>
       <li><b>Add the key.</b> Under <b>Edge Functions</b>, <b>Secrets</b>, add <b>VAPID_PUBLIC_KEY</b> and <b>VAPID_PRIVATE_KEY</b>, each with its half from step 1.</li>
-      <li><b>Turn them on.</b> Close this, tap <b>Turn on reminders</b>, then <b>Send a test</b>.</li>
+      <li><b>Turn them on</b> in Dayline on your phone's home screen: <b>Settings</b>, then <b>Reminders</b>, <b>Turn on reminders</b>, then <b>Send a test</b>.</li>
     </ol>
     <p class="err hide" id="r-err" role="alert"></p>
   </div>
@@ -3454,12 +3460,27 @@ el("sync-off").addEventListener("click",function(){signOut(false);});
 var TEXT={};
 function getText(p){return TEXT[p]?Promise.resolve(TEXT[p]):fetch(p,{cache:"no-cache"}).then(function(r){
   if(!r.ok)throw new Error("HTTP "+r.status);return r.text();}).then(function(t){TEXT[p]=t;return t;});}
-function copyText(t,btn){
+// t: the text, or nothing while it's still loading (the caller fetches it).
+// box: where it's shown, so that if this browser won't copy it, it's opened
+// there and selected, ready to copy by hand.
+function copyText(t,btn,box){
   var was=btn.getAttribute("data-label")||btn.textContent;btn.setAttribute("data-label",was);
-  function said(m){btn.textContent=m;setTimeout(function(){btn.textContent=was;},2200);}
-  if(!t){said("Still loading. Try again");getText("supabase/setup.sql").catch(function(){});return;}
-  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(function(){said("Copied");},function(){said("Couldn't copy");});
-  else said("Couldn't copy");
+  function said(m){btn.textContent=m;clearTimeout(btn._said);btn._said=setTimeout(function(){btn.textContent=was;},2600);}
+  if(!t){said("Still loading. Tap again in a moment");return;}
+  function byHand(){said("Couldn't copy. Select it below");if(!box)return;box.value=t;
+    var d=box.closest("details");if(d)d.open=true;box.focus();box.select();}
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(function(){said("Copied");},byHand);
+  else if(oldCopy(t,btn))said("Copied");else byHand();
+}
+// Browsers without the Clipboard API copy a selection: the text goes into a
+// box nobody sees, inside the sheet (nothing outside an open sheet can take
+// focus), and is selected and copied from there.
+function oldCopy(t,btn){
+  var a=document.createElement("textarea"),ok=false;a.value=t;a.setAttribute("readonly","");a.setAttribute("aria-hidden","true");
+  a.style.cssText="position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none";
+  (btn.closest("dialog")||document.body).appendChild(a);a.focus();a.select();a.setSelectionRange(0,t.length);
+  try{ok=document.execCommand("copy");}catch(e){}
+  a.remove();btn.focus({preventScroll:true});return ok;
 }
 function gErr(t){syncMsg("g-err",t);}
 function openGuide(){
@@ -3471,7 +3492,8 @@ el("sb-guide").addEventListener("click",openGuide);
 el("sb-change").addEventListener("click",openGuide);
 el("g-x").addEventListener("click",function(){sheetShut(el("g-sheet"));});
 el("g-sheet").addEventListener("click",function(e){if(e.target===this)sheetShut(this);});
-el("g-copy-sql").addEventListener("click",function(){copyText(TEXT["supabase/setup.sql"],this);});
+el("g-copy-sql").addEventListener("click",function(){var t=TEXT["supabase/setup.sql"];
+  if(!t)getText("supabase/setup.sql").then(function(x){el("g-sql").value=x;},function(){});copyText(t,this,el("g-sql"));});
 // The project's address from whatever was copied: the Project URL itself, the
 // same with a path after it or without its https://, the dashboard's address
 // for the project, or only the project's id (20 letters).
@@ -3561,7 +3583,10 @@ el("app-clear").addEventListener("click",function(){
 // ---------- reminders ----------
 // Blocks, due dates and prayer times as notifications, sent by your own
 // Supabase while Dayline is closed. iOS gives push only to a home-screen web
-// app, and only asks for permission from a tap, so the card shows only there.
+// app, and only asks for permission from a tap, so they're turned on only
+// there. Setting them up is your project's business, though, and works from
+// any signed-in Dayline: most easily a computer's, where the Supabase
+// dashboard is, since a phone's copy can't be pasted on a computer.
 // This phone's push address goes to your project through put_push_sub; the
 // choices sync as "reminders", the public half of your project's key with
 // them; and every minute the remind function there sends what's due.
@@ -3588,9 +3613,11 @@ function saveSub(s){var j=s.toJSON(),k=j.keys||{},was=rpush&&rpush.ep===j.endpoi
   return fresh().then(function(){return sbFetch("/rest/v1/rpc/put_push_sub",{p_endpoint:j.endpoint,p_p256dh:k.p256dh,p_auth:k.auth},true);})
     .then(function(){keepPush({ep:j.endpoint,at:Date.now(),ok:was.ok||0,err:was.err||""});});}
 function renderRemind(){
-  var home=homeApp();el("rem-card").classList.toggle("hide",!home);if(!home)return;
-  var on=!!rpush,perm=window.Notification?Notification.permission:"default",p=rp(),ready=!!(sm.s&&p.vapid);
-  el("rem-status").textContent=!canPush()?"This iPhone can't get reminders from Dayline. It needs iOS 16.4 or later."
+  var home=homeApp(),on=home&&!!rpush,perm=window.Notification?Notification.permission:"default",p=rp(),ready=!!(sm.s&&p.vapid);
+  el("rem-status").textContent=!home?(!sm.s?"Connect your own Supabase and sign in first, above."
+      :p.vapid?"Set up. Turn them on in Dayline on your phone's home screen."
+      :"Set them up here, then turn them on in Dayline on your phone's home screen.")
+    :!canPush()?"This iPhone can't get reminders from Dayline. It needs iOS 16.4 or later."
     :perm==="denied"?"Notifications are off for Dayline. Turn them on in the Settings app, under Notifications, then Dayline."
     :!sm.s?"Connect your own Supabase and sign in first, above."
     :!p.vapid?"One more step: set reminders up in your Supabase."
@@ -3600,7 +3627,7 @@ function renderRemind(){
   el("rem-note").classList.toggle("hide",on);el("rem-opts").classList.toggle("hide",!on);
   el("rem-guide").classList.toggle("hide",!sm.s||on);
   el("rem-guide").classList.toggle("prominent",!!sm.s&&!p.vapid);
-  el("rem-on").classList.toggle("hide",on||!ready);el("rem-test").classList.toggle("hide",!on);el("rem-off").classList.toggle("hide",!on);
+  el("rem-on").classList.toggle("hide",!home||on||!ready);el("rem-test").classList.toggle("hide",!on);el("rem-off").classList.toggle("hide",!on);
   el("rem-on").disabled=rbusy||!canPush()||perm==="denied";
   el("rem-test").disabled=rbusy||!sm.s;el("rem-off").disabled=rbusy;
   ["blocks","due","pray","late","subuh"].forEach(function(k){el("rem-"+k).checked=p[k];});
@@ -3689,10 +3716,20 @@ function checkPush(force){
 function b64u(a){var s="";for(var i=0;i<a.length;i++)s+=String.fromCharCode(a[i]);
   return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
 function rErr(t){syncMsg("r-err",t);}
+var REM_SQL="supabase/reminders.sql",REM_FN="supabase/functions/remind/index.ts";
+// The reminders SQL with your project's address put in, where the job calls the function.
+function remSQL(){var t=TEXT[REM_SQL];return t?t.split("YOUR_PROJECT_URL").join(SB()||"YOUR_PROJECT_URL"):"";}
+// Both, into their Show it boxes, once they've loaded.
+function loadRem(){return Promise.all([getText(REM_SQL),getText(REM_FN)]).then(function(){el("r-sql").value=remSQL();el("r-fn").value=TEXT[REM_FN];},
+  function(){rErr("Couldn't load the setup files. Check your connection, then open this again.");});}
 function openRemGuide(){
   rErr("");el("r-keys").classList.add("hide");el("r-make").classList.remove("hide");
+  // On a phone, a copy reaches only that phone, while the pasting happens in
+  // Supabase's dashboard, usually on a computer: so it says how to do this there.
+  var phone=homeApp()||!!(window.matchMedia&&matchMedia("(pointer: coarse)").matches);
+  el("r-away").classList.toggle("hide",!phone);el("r-here").textContent=location.host+location.pathname.replace(/index\.html$/,"");
   var d=el("r-sheet");sheetOpen(d);d.querySelector(".sheet-in").scrollTop=0;
-  getText("supabase/reminders.sql").catch(function(){});getText("supabase/functions/remind/index.ts").catch(function(){});
+  loadRem();
 }
 el("rem-guide").addEventListener("click",openRemGuide);
 el("r-x").addEventListener("click",function(){sheetShut(el("r-sheet"));renderRemind();});
@@ -3700,18 +3737,27 @@ el("r-sheet").addEventListener("click",function(e){if(e.target===this){sheetShut
 el("r-make").addEventListener("click",function(){
   if(!window.crypto||!crypto.subtle){rErr("This browser can't make keys. Try Safari or Chrome.");return;}
   if(rp().vapid&&rpush){rErr("Reminders already have a key. Turn them off on every phone before making a new one.");return;}
-  crypto.subtle.generateKey({name:"ECDSA",namedCurve:"P-256"},true,["sign","verify"]).then(function(kp){
-    return Promise.all([crypto.subtle.exportKey("raw",kp.publicKey),crypto.subtle.exportKey("jwk",kp.privateKey)]);
-  }).then(function(x){
+  var btn=this;btn.disabled=true;rErr("");
+  // A phone with reminders on uses the key there is now, so a new one would
+  // cut it off; your project knows of any such phone. Before the reminder
+  // tables exist there can't be one, and a key made on another device (a
+  // phone, before you came to the computer) is simply replaced.
+  (rp().vapid&&sm.s?fresh().then(function(){return sbFetch("/rest/v1/push_subs?select=endpoint&limit=1",undefined,true);}).catch(function(){return [];})
+    :Promise.resolve([]))
+  .then(function(rows){if(rows&&rows.length)throw new Error("phones");
+    return crypto.subtle.generateKey({name:"ECDSA",namedCurve:"P-256"},true,["sign","verify"]);})
+  .then(function(kp){return Promise.all([crypto.subtle.exportKey("raw",kp.publicKey),crypto.subtle.exportKey("jwk",kp.privateKey)]);})
+  .then(function(x){
     var pub=b64u(new Uint8Array(x[0]));el("r-pub").value=pub;el("r-priv").value=x[1].d;
     setPref("vapid",pub);el("r-keys").classList.remove("hide");el("r-make").classList.add("hide");
-  },function(){rErr("Couldn't make a key here. Try again.");});
+  },function(e){rErr(e&&e.message==="phones"?"A phone has reminders on with the key made before. Turn them off there, then make a new key here."
+    :"Couldn't make a key here. Try again.");})
+  .then(function(){btn.disabled=false;});
 });
-el("r-copy-pub").addEventListener("click",function(){copyText(el("r-pub").value,this);});
-el("r-copy-priv").addEventListener("click",function(){copyText(el("r-priv").value,this);});
-el("r-copy-sql").addEventListener("click",function(){var t=TEXT["supabase/reminders.sql"];
-  copyText(t&&t.split("YOUR_PROJECT_URL").join(SB()||"YOUR_PROJECT_URL"),this);});
-el("r-copy-fn").addEventListener("click",function(){copyText(TEXT["supabase/functions/remind/index.ts"],this);});
+el("r-copy-pub").addEventListener("click",function(){copyText(el("r-pub").value,this,el("r-pub"));});
+el("r-copy-priv").addEventListener("click",function(){copyText(el("r-priv").value,this,el("r-priv"));});
+el("r-copy-sql").addEventListener("click",function(){var t=remSQL();if(!t)loadRem();copyText(t,this,el("r-sql"));});
+el("r-copy-fn").addEventListener("click",function(){var t=TEXT[REM_FN];if(!t)loadRem();copyText(t,this,el("r-fn"));});
 
 // ---------- navigation ----------
 var VIEWS={today:"Today",week:"Week",due:"Due",solat:"Solat",edit:"Schedule"},ALL=["today","week","due","solat","edit"];
