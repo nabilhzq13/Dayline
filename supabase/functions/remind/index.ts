@@ -106,7 +106,7 @@ function timesFor(years: Years, day: number): number[] | null {
 
 // ---------- what's due ----------
 type Block = { id: string; activity: string; start: string; mins: number; days: number[]; details?: string };
-type Task = { id: string; title: string; course?: string; due?: string; done?: number };
+type Task = { id: string; kind?: string; title: string; course?: string; due?: string; done?: number };
 type Account = {
   prefs: Prefs; solatOn: boolean; blocks: Block[]; tasks: Task[];
   done: Record<string, string[]>;                  // ticked blocks by date
@@ -173,18 +173,22 @@ function due(now: number, a: Account, span = 3): Note[] {
       }
     }
   }
-  // Deadlines: a day before, and an hour before, unless it's handed in.
+  // Deadlines, exams and quizzes: a day before, and an hour before, unless
+  // it's ticked off. An assignment is due; an exam or a quiz starts.
   if (p.due) for (const t of a.tasks) {
     const at = localMinute(t.due);
     if (at === null || t.done) continue;
-    const what = String(t.title || "Assignment").slice(0, 80), course = t.course ? String(t.course).slice(0, 30) + " · " : "";
+    const test = t.kind === "exam" || t.kind === "quiz", kind = t.kind === "exam" ? "Exam" : "Quiz";
+    const what = String(t.title || (test ? kind : "Assignment")).slice(0, 80), course = t.course ? String(t.course).slice(0, 30) + " · " : "";
     take({
       key: `d:${t.id}:${t.due}:day`, tab: "due", topic: "due",
-      title: `${what} is due tomorrow`, body: `${course}Due at ${fmt(at)}. Still to hand in.`,
+      title: test ? `${kind} tomorrow: ${what}` : `${what} is due tomorrow`,
+      body: test ? `${course}Starts at ${fmt(at)}.` : `${course}Due at ${fmt(at)}. Still to hand in.`,
     }, placed(p, at - 1440, at, false), at);
     take({
       key: `d:${t.id}:${t.due}:hour`, tab: "due", topic: "due",
-      title: `${what} is due in an hour`, body: `${course}Due at ${fmt(at)}.`,
+      title: test ? `${kind} in an hour: ${what}` : `${what} is due in an hour`,
+      body: test ? `${course}Starts at ${fmt(at)}.` : `${course}Due at ${fmt(at)}.`,
     }, placed(p, at - 60, at, false), at);
   }
   return out;

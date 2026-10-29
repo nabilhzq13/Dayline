@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Dayline</title>
-<meta name="description" content="Build your own timetable from nothing, fill the empty hours, track assignments and prayers. Everything stays on your phone, with an optional backup to your own Supabase.">
-<meta name="theme-color" content="#fbf1e9" id="theme-color">
+<meta name="description" content="Build your own timetable from nothing, fill the empty hours, track assignments, exams, quizzes and prayers. Everything stays on your phone, with an optional backup to your own Supabase.">
+<meta name="theme-color" content="#faf9f6">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -16,14 +16,16 @@
 <link rel="preload" href="fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
   /* ============================================================
-     Dayline — warm Liquid Glass
+     Dayline — soft pastel, flat
 
-     Break's two-layer model, warmed up: the content layer is a cream ground
-     with drifting peach, coral and apricot glows (they shift with the time
-     of day) under a fine grain, with milky cards and pastel blocks on top;
-     the functional layer is real Liquid Glass, the floating tab bar and its
-     lens, exactly as in Break. Headings are set in the system serif (New
-     York on iPhone), body text in Inter.
+     A warm off-white ground with white cards on it, each lifted by a light
+     shadow. Pastels are accents, never the page: a kind of block, an
+     assignment, an exam or a quiz, a status and each page in the menu wear
+     one. Text stays charcoal. Navigation is one floating Home button: tapped,
+     the pages fan out above it in a half circle and stay put until one is
+     picked. Page titles are set in the system serif (New York on iPhone),
+     everything else in Inter. All motion shares three durations and two
+     curves, and Reduce Motion turns it off.
      ============================================================ */
 
   /* Inter, self-hosted so it works offline: one variable file carrying every
@@ -33,42 +35,46 @@
     unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,
       U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 
-  /* Registered so the ground can cross-fade between phases of the day. */
-  @property --sky-base{syntax:'<color>';inherits:true;initial-value:#fbf1e9}
-  @property --sky-a{syntax:'<color>';inherits:true;initial-value:#ffd2a2}
-  @property --sky-b{syntax:'<color>';inherits:true;initial-value:#ffadbd}
-  @property --sky-c{syntax:'<color>';inherits:true;initial-value:#ffcaa8}
-
   :root{
     color-scheme:light;
-    --sky-base:#fbf1e9; --sky-a:#ffd2a2; --sky-b:#ffadbd; --sky-c:#ffcaa8;
-    transition:--sky-base 2.5s ease,--sky-a 2.5s ease,--sky-b 2.5s ease,--sky-c 2.5s ease;
+    --bg:#faf9f6;
+    --surface:#fff;
+    --surface-2:#f3f1ec;      /* quiet buttons, tracks, hovers */
+    --surface-3:#e9e6df;      /* pressed */
+    --ink:#30343b;            /* 12.4:1 on white */
+    --ink-2:#61656d;          /* the only secondary text colour: 5.8:1 on white, 5.5:1 on the ground */
+    --line:#ebe8e2;
+    --line-2:#d5d1c9;         /* input edges, unticked checks, free time's dashed edge */
+    --primary:#30343b; --primary-hover:#1f2328; --primary-ink:#fff;
+    --focus:#6a5cc2;
+    --done:#4f7f5a;           /* a tick: 4.6:1 on white */
+    --late:#a8344a;           /* overdue, the one strong colour, kept for what's genuinely late */
+    --scrim:rgba(250,249,246,.8);
+    --backdrop:rgba(48,52,59,.36);
 
-    --ink:#1f1a1c;
-    --ink-2:#5b5155;          /* the only secondary text colour: 6.4:1 on the cream */
-    --line:rgba(80,40,40,.10);
-    --tint:#d23c33;           /* coral fills */
-    --tint-text:#a8261e;      /* coral as text: 6.3:1 on the cream */
-    --tint-ink:#ffffff;
-    /* Coral to raspberry. White text holds 4.7:1 or better all the way across. */
-    --grad:linear-gradient(115deg,#d23c33,#c42a5c);
-    --good:#d23c33;
-    --flag:#c2410c;
-    --flag-text:#9a3412;
-    --ring-1:#d23c33; --ring-2:#c42a5c; --ring-3:#e8862f;
-    --press:rgba(80,40,40,.06);
+    /* The pastels. Each has a deeper edge (-2) for bars and rings, and a text
+       colour (-ink) that holds 5.5:1 or better on its own pastel. */
+    --lav:#dcd6f7;   --lav-2:#b3a8ec;   --lav-ink:#4a3e9c;
+    --sage:#d8e8d5;  --sage-2:#a3c99c;  --sage-ink:#2f5e37;
+    --blue:#d6e8f5;  --blue-2:#97c2e6;  --blue-ink:#1f4f78;
+    --peach:#f6ddcf; --peach-2:#eab08f; --peach-ink:#8a3f1c;
+    --butter:#f5edc9;--butter-2:#e2cd78;--butter-ink:#6b5511;
+    --rose:#f5d9df;  --rose-2:#e4a0b0;  --rose-ink:#93304a;
+    --mint:#d5ece7;  --mint-2:#92cbbf;  --mint-ink:#22594f;
+    --grey:#eceae5;  --grey-2:#c9c5bd;  --grey-ink:#4a4e55;
 
-    --material:rgba(255,255,255,.74);
-    --material-rim:rgba(255,255,255,.85);
-    --glass:rgba(255,255,255,.5);
-    /* The liquid glass edge, kept for the tab bar's lens alone, as in Break. */
-    --rim:0 0 6px rgba(0,0,0,.03),0 2px 6px rgba(0,0,0,.08),
-      inset 3px 3px .5px -3px rgba(0,0,0,.9),inset -3px -3px .5px -3px rgba(0,0,0,.85),
-      inset 1px 1px 1px -.5px rgba(0,0,0,.6),inset -1px -1px 1px -.5px rgba(0,0,0,.6),
-      inset 0 0 6px 6px rgba(0,0,0,.12),inset 0 0 2px 2px rgba(0,0,0,.06),0 0 12px rgba(255,255,255,.15);
+    --shadow-1:0 1px 2px rgba(48,52,59,.05),0 4px 14px -6px rgba(48,52,59,.12);
+    --shadow-2:0 2px 6px rgba(48,52,59,.08),0 14px 34px -10px rgba(48,52,59,.24);
 
-    --radius:26px; --radius-sm:16px;
+    --radius:16px; --radius-sm:12px;
     --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;
+
+    /* Motion: three lengths and two curves, shared by everything that moves. */
+    --d-1:120ms;  /* presses, hovers */
+    --d-2:220ms;  /* ticks, chips, status, closing */
+    --d-3:320ms;  /* pages, sheets, the menu opening */
+    --ease:cubic-bezier(.2,.8,.2,1);   /* arriving: quick, then settling, no overshoot */
+    --ease-in:cubic-bezier(.4,0,1,1);  /* leaving */
 
     --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     --serif:ui-serif,"New York","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
@@ -79,92 +85,57 @@
     /* Apple's Large (default) Dynamic Type table as rem against a 17pt body. */
     --t-large:2.1rem; --t-title1:1.65rem; --t-title2:1.3rem; --t-title3:1.18rem;
     --t-body:1rem; --t-callout:.94rem; --t-subhead:.88rem; --t-footnote:.76rem;
-    --t-caption:.71rem; --t-caption2:.65rem; --t-tab:clamp(11px,.65rem,14px);
-
-    /* Kinds of block: one hue each, a pastel card and a pill. */
-    --h-study:266; --h-work:172; --h-move:138; --h-rest:198;
-    --h-social:44; --h-chores:352; --h-travel:24;
-    --cat-s:62%; --cat-l:56%;
-    --pill-s:72%; --pill-l:86%; --pill-ink-s:45%; --pill-ink-l:22%;
+    --t-caption:.71rem; --t-caption2:.65rem;
   }
+
+  /* Pastel tones by name. The script puts data-tone on whatever wears one: a
+     kind of block, an assignment, exam or quiz, a page in the menu. */
+  [data-tone="lav"]{--t-bg:var(--lav);--t-2:var(--lav-2);--t-ink:var(--lav-ink)}
+  [data-tone="sage"]{--t-bg:var(--sage);--t-2:var(--sage-2);--t-ink:var(--sage-ink)}
+  [data-tone="blue"]{--t-bg:var(--blue);--t-2:var(--blue-2);--t-ink:var(--blue-ink)}
+  [data-tone="peach"]{--t-bg:var(--peach);--t-2:var(--peach-2);--t-ink:var(--peach-ink)}
+  [data-tone="butter"]{--t-bg:var(--butter);--t-2:var(--butter-2);--t-ink:var(--butter-ink)}
+  [data-tone="rose"]{--t-bg:var(--rose);--t-2:var(--rose-2);--t-ink:var(--rose-ink)}
+  [data-tone="mint"]{--t-bg:var(--mint);--t-2:var(--mint-2);--t-ink:var(--mint-ink)}
+  [data-tone="grey"]{--t-bg:var(--grey);--t-2:var(--grey-2);--t-ink:var(--grey-ink)}
 
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   [hidden]{display:none!important}
   .hide{display:none!important}
   .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-  html{font:-apple-system-body;font-family:var(--sans);background:var(--sky-base)}
+  html{font:-apple-system-body;font-family:var(--sans);background:var(--bg)}
   html,body{min-height:100%}
   html,.sheet-in,.welcome{scrollbar-width:none}
   html::-webkit-scrollbar,body::-webkit-scrollbar,.sheet-in::-webkit-scrollbar,.welcome::-webkit-scrollbar{display:none}
   body{
-    margin:0;background:var(--sky-base);color:var(--ink);font-family:var(--sans);
+    margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
     font-size:var(--t-body);line-height:var(--lh-text);letter-spacing:var(--tr-text);-webkit-text-size-adjust:100%;
     font-variant-numeric:tabular-nums;font-optical-sizing:auto;
   }
   b,strong{font-weight:var(--w-semibold)}
-  :focus-visible{outline:2.5px solid var(--tint);outline-offset:2px;border-radius:10px}
+  :focus-visible{outline:2.5px solid var(--focus);outline-offset:2px}
+  [tabindex="-1"]:focus{outline:none}
   .serif{font-family:var(--serif);font-weight:var(--w-bold);letter-spacing:-.005em}
-
-  /* ---------------- the warm ground ---------------- */
-  .sky{position:fixed;inset:0;z-index:0;background:var(--sky-base);overflow:hidden;pointer-events:none}
-  .blob{position:absolute;border-radius:50%;will-change:transform}
-  .b1{width:95vmax;height:95vmax;top:-40vmax;left:-32vmax;
-      background:radial-gradient(circle,var(--sky-a) 0,transparent 64%);
-      animation:drift1 30s ease-in-out infinite alternate}
-  .b2{width:95vmax;height:95vmax;bottom:-44vmax;right:-36vmax;
-      background:radial-gradient(circle,var(--sky-b) 0,transparent 64%);
-      animation:drift2 36s ease-in-out infinite alternate}
-  .b3{width:70vmax;height:70vmax;top:30vh;left:20vw;
-      background:radial-gradient(circle,var(--sky-c) 0,transparent 62%);
-      animation:drift3 42s ease-in-out infinite alternate}
-  @keyframes drift1{to{transform:translate(20vw,16vh) scale(1.15)}}
-  @keyframes drift2{to{transform:translate(-18vw,-14vh) scale(1.1)}}
-  @keyframes drift3{to{transform:translate(-22vw,12vh) scale(.88)}}
-  /* Grain, like a risograph print, over the glows. */
-  .sky::after,.welcome::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.55;mix-blend-mode:multiply;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .38 0 0 0 0 .2 0 0 0 0 .2 0 0 0 .2 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  @keyframes fade-in{from{opacity:0}}
+  @keyframes fade-out{to{opacity:0}}
+  @keyframes view-in{from{opacity:0;transform:translateY(6px)}}
 
   .app{
-    position:relative;z-index:1;max-width:640px;margin:0 auto;
-    padding-top:calc(env(safe-area-inset-top,0px) + 14px);
+    position:relative;z-index:1;max-width:680px;margin:0 auto;
+    padding-top:calc(env(safe-area-inset-top,0px) + 16px);
     padding-left:max(16px,env(safe-area-inset-left,0px));
     padding-right:max(16px,env(safe-area-inset-right,0px));
-    padding-bottom:calc(env(safe-area-inset-bottom,0px) + 104px);
+    padding-bottom:calc(env(safe-area-inset-bottom,0px) + 112px);
   }
+  /* Arriving on a page, it fades up into place. */
+  .view-in{animation:view-in var(--d-3) var(--ease)}
 
   /* ---------------- surfaces ---------------- */
-  .material{
-    position:relative;background:var(--material);border-radius:var(--radius);
-    border:1px solid var(--material-rim);
-    box-shadow:0 16px 36px -24px rgba(120,40,30,.4),inset 0 1px 0 rgba(255,255,255,.9);
-    margin-bottom:var(--s4);
-  }
+  .material{position:relative;background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-1);margin-bottom:var(--s4)}
   .pad{padding:var(--s4)}
-  .glass{
-    position:relative;background:var(--glass);
-    -webkit-backdrop-filter:blur(18px) saturate(2) brightness(1.08);
-    backdrop-filter:blur(18px) saturate(2) brightness(1.08);
-    box-shadow:0 12px 34px -12px rgba(90,30,30,.4),inset 0 1px 1px rgba(255,255,255,.9),
-               inset 0 -1px 1px rgba(255,255,255,.25);
-  }
-  .glass::before{
-    content:"";position:absolute;inset:0;border-radius:inherit;padding:1.2px;pointer-events:none;
-    background:linear-gradient(140deg,rgba(255,255,255,.95),rgba(255,255,255,.12) 38%,
-      rgba(255,255,255,.05) 62%,rgba(255,255,255,.6));
-    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
-    -webkit-mask-composite:xor;mask-composite:exclude;
-  }
-  @media (prefers-reduced-transparency:reduce){
-    .material{background:#fffaf6}
-    .glass{background:#fbf3ee;-webkit-backdrop-filter:none;backdrop-filter:none}
-  }
-  @media (prefers-contrast:more){
-    .material{background:#fff;border-color:rgba(0,0,0,.35)}
-    .glass{background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none;outline:1px solid rgba(0,0,0,.4)}
-  }
 
   /* ---------------- header ---------------- */
-  .hero{margin:0 var(--s1) var(--s4);color:var(--ink)}
+  .hero{margin:0 2px var(--s4);color:var(--ink)}
   .daystamp{margin:0;font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--ink-2)}
   h1{margin:2px 0 0;font-family:var(--serif);font-size:var(--t-large);font-weight:var(--w-bold);letter-spacing:-.01em;line-height:var(--lh-display)}
   h2{margin:0;font-size:var(--t-title3);font-weight:var(--w-semibold);letter-spacing:var(--tr-title);line-height:var(--lh-title)}
@@ -172,298 +143,400 @@
   .muted{color:var(--ink-2)}
   .label{margin:0;font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--ink-2)}
   .hero-row{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--s2) var(--s3)}
-  /* The greeting wraps under itself rather than pushing + and the gear onto a line of their own. */
+  /* The greeting wraps under itself rather than pushing the buttons onto a line of their own. */
   .hero-row>div:first-child{flex:1 1 0;min-width:0}
-  [tabindex="-1"]:focus{outline:none}
   .hero-acts{display:flex;gap:var(--s2);margin-left:auto}
-  .hero-btn{position:relative;width:44px;height:44px;border:0;border-radius:999px;padding:0;cursor:pointer;
-    display:grid;place-items:center;background:rgba(255,255,255,.85);color:var(--ink);
-    box-shadow:0 6px 16px -8px rgba(90,30,30,.5)}
-  .hero-btn svg{width:22px;height:22px;fill:currentColor;display:block}
-  .hero-btn.add{background:var(--grad);color:#fff;box-shadow:0 10px 22px -10px rgba(196,42,92,.8)}
-  .hero-btn:active{transform:scale(.92)}
-  .hero-btn.alert::after{content:"";position:absolute;top:5px;right:5px;width:10px;height:10px;border-radius:50%;
-    background:#e5202e;box-shadow:0 0 0 2px #fff}
+  .hero-btn{position:relative;min-width:44px;height:44px;border:0;border-radius:999px;padding:0;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--surface);color:var(--ink);
+    box-shadow:var(--shadow-1);font:inherit;font-size:var(--t-subhead);font-weight:var(--w-semibold);
+    transition:transform var(--d-1) var(--ease),background-color var(--d-1) ease}
+  .hero-btn svg{width:21px;height:21px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .hero-btn.add{padding:0 18px 0 13px;background:var(--primary);color:var(--primary-ink)}
+  .hero-btn:active{transform:scale(.95)}
+  .alert::after{content:"";position:absolute;top:4px;right:4px;width:10px;height:10px;border-radius:50%;
+    background:var(--late);box-shadow:0 0 0 2px var(--surface)}
+  @media (hover:hover){
+    .hero-btn:hover{background:var(--surface-2)}
+    .hero-btn.add:hover{background:var(--primary-hover)}
+  }
+
+  /* A label on hover, for buttons that are only an icon. */
+  @media (hover:hover) and (pointer:fine){
+    [data-tip]::before{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);z-index:5;
+      padding:5px 9px;border-radius:8px;background:var(--ink);color:#fff;font:600 12px/1.3 var(--sans);letter-spacing:0;white-space:nowrap;
+      opacity:0;transform:translate(-50%,4px);pointer-events:none;transition:opacity var(--d-2) ease,transform var(--d-2) var(--ease)}
+    [data-tip].tip-below::before{bottom:auto;top:calc(100% + 8px);transform:translate(-50%,-4px)}
+    [data-tip]:hover::before,[data-tip]:focus-visible::before{opacity:1;transform:translate(-50%,0)}
+  }
 
   /* ---------------- buttons ---------------- */
   .btn{
     font:inherit;font-size:var(--t-subhead);font-weight:var(--w-semibold);min-height:44px;padding:0 18px;
-    border-radius:999px;border:0;cursor:pointer;display:inline-flex;align-items:center;
-    justify-content:center;gap:8px;color:var(--ink);background:rgba(80,40,40,.07);
+    border-radius:var(--radius-sm);border:0;cursor:pointer;display:inline-flex;align-items:center;
+    justify-content:center;gap:8px;color:var(--ink);background:var(--surface-2);
   }
-  .btn.prominent{background:var(--grad);color:var(--tint-ink);box-shadow:0 10px 24px -12px rgba(196,42,92,.8)}
-  .btn.danger{background:rgba(194,65,12,.1);color:var(--flag-text)}
-  .btn.glassbtn{background:rgba(255,255,255,.7);box-shadow:inset 0 1px 0 #fff,0 4px 14px -6px rgba(90,30,30,.3)}
-  .btn.dark{background:var(--ink);color:#fff}
-  .btn svg{width:1.15em;height:1.15em;fill:currentColor;flex:0 0 auto}
+  .btn.prominent,.btn.dark{background:var(--primary);color:var(--primary-ink)}
+  .btn.danger{background:var(--rose);color:var(--rose-ink)}
+  .btn.soft{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line-2)}
+  .btn svg{width:1.15em;height:1.15em;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .btn:disabled{opacity:.45;cursor:not-allowed}
   .btns{display:flex;flex-wrap:wrap;gap:var(--s2)}
-  .btn,.item,.chip-btn,.dayrow button,.tabbar button,.shot .open,.hero-btn,.strip button,.c-open,.c-tick,.t-open,.idea,.st-item{
-    transition:transform .12s ease,background-color .12s ease,opacity .12s ease,filter .12s ease;
+  .btn,.item,.chip-btn,.dayrow button,.shot .open,.strip button,.c-open,.c-tick i,.tk-open,.idea,.st-item,.seg button,.fchips button,.due-add,.duerow,.pchip,.o-step,.sheet-x i,.link,.nextup{
+    transition:transform var(--d-1) var(--ease),background-color var(--d-1) ease,color var(--d-1) ease,box-shadow var(--d-2) ease,opacity var(--d-2) ease;
   }
-  .btn:active,.idea:active,.st-item:active{transform:scale(.96)}
-  .btn.prominent:active{filter:brightness(.92)}
-  .item:active,.chip-btn:active,.dayrow button:active{background:var(--press)}
-  .tabbar button:active{transform:scale(.92)}
+  .btn:active,.idea:active,.st-item:active,.due-add:active,.pchip:active{transform:scale(.97)}
+  .item:active,.chip-btn:active,.dayrow button:active,.duerow:active{background:var(--surface-3)}
+  @media (hover:hover){
+    .btn:not(:disabled):hover{background:var(--surface-3)}
+    .btn.prominent:not(:disabled):hover,.btn.dark:not(:disabled):hover{background:var(--primary-hover)}
+    .btn.danger:not(:disabled):hover{background:#efc8d1}
+    .btn.soft:not(:disabled):hover{background:var(--surface-2)}
+  }
 
   /* ---------------- this week: a ring per day ---------------- */
   .strip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;padding:6px;margin-bottom:var(--s2)}
-  .strip button{font:inherit;border:0;background:transparent;border-radius:18px;min-height:66px;min-width:0;padding:7px 0 6px;cursor:pointer;
+  .strip button{font:inherit;border:0;background:transparent;border-radius:12px;min-height:76px;min-width:0;padding:8px 0;cursor:pointer;
     display:grid;justify-items:center;align-content:center;gap:5px;color:var(--ink-2)}
-  .strip button.today{background:#fff;color:var(--ink);box-shadow:0 6px 14px -8px rgba(120,40,30,.45),inset 0 0 0 1px rgba(80,40,40,.08)}
-  .strip button:active{background:var(--press)}
-  .strip svg{width:30px;height:30px;transform:rotate(-90deg);display:block}
-  .strip circle{fill:none;stroke-width:4.2}
-  .strip .track{stroke:rgba(80,40,40,.1)}
-  .strip .arc{stroke:url(#arcgrad);stroke-linecap:round;transition:stroke-dashoffset .9s cubic-bezier(.3,1.1,.4,1)}
-  .strip span{font-size:var(--t-caption);font-weight:var(--w-semibold)}
-  .streak{margin:0 var(--s1) var(--s4);font-size:var(--t-footnote);font-weight:var(--w-medium);color:var(--ink-2)}
-  .streak b{color:var(--tint-text)}
+  .strip .sd{font-size:var(--t-caption);font-weight:var(--w-semibold);line-height:1}
+  .strip .sr{position:relative;width:34px;height:34px;display:grid;place-items:center}
+  .strip svg{position:absolute;inset:0;width:34px;height:34px;transform:rotate(-90deg);display:block}
+  .strip .sr b{position:relative;font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--ink)}
+  .strip circle{fill:none;stroke-width:3}
+  .strip .track{stroke:var(--surface-3)}
+  .strip .arc{stroke:var(--done);stroke-linecap:round;transition:stroke-dashoffset .6s var(--ease)}
+  .strip button.today{background:var(--lav);color:var(--lav-ink)}
+  .strip button.today .track{stroke:rgba(255,255,255,.8)}
+  .strip button.today .sr b{color:var(--lav-ink)}
+  .strip button:active{background:var(--surface-3)}
+  @media (hover:hover){.strip button:not(.today):hover{background:var(--surface-2)}}
+  .streak{margin:0 2px var(--s4);font-size:var(--t-footnote);font-weight:var(--w-medium);color:var(--ink-2)}
+  .streak b{color:var(--sage-ink)}
 
   /* ---------------- now card ---------------- */
-  .nowcard{padding:var(--s4) var(--s4) var(--s3);overflow:hidden}
-  .nowcard::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-    background:radial-gradient(120% 90% at 100% 0,hsl(var(--h,24) 90% 80% / .55),transparent 62%)}
-  .nowcard.idle::after{opacity:.45}
-  .now-top{display:grid;grid-template-columns:1fr auto;gap:var(--s3);align-items:start;position:relative;z-index:1}
-  .nowcard .label{color:var(--tint-text)}
+  .nowcard{padding:var(--s4) var(--s4) var(--s3) calc(var(--s4) + 6px);overflow:hidden}
+  .nowcard::before{content:"";position:absolute;left:8px;top:14px;bottom:14px;width:4px;border-radius:4px;background:var(--t-2,var(--line-2))}
+  .nowcard.idle::before{background:var(--line-2)}
+  .now-top{display:grid;grid-template-columns:1fr auto;gap:var(--s3);align-items:start}
+  .nowcard .label{color:var(--t-ink,var(--ink-2))}
   .nowcard.idle .label{color:var(--ink-2)}
-  .now-title{margin:4px 0 0;font-family:var(--serif);font-size:var(--t-title1);font-weight:var(--w-bold);line-height:var(--lh-display);letter-spacing:-.01em}
+  .now-title{margin:4px 0 0;font-size:var(--t-title2);font-weight:var(--w-bold);line-height:var(--lh-title);letter-spacing:-.012em}
   .now-when{margin:4px 0 0;font-size:var(--t-subhead);font-weight:var(--w-medium);color:var(--ink-2)}
-  .now-detail{margin:var(--s3) 0 0;font-size:var(--t-subhead);color:var(--ink-2);line-height:1.45;position:relative;z-index:1}
-  .nowring{position:relative;width:68px;height:68px;flex:0 0 auto}
-  .nowring svg{width:68px;height:68px;transform:rotate(-90deg);display:block}
-  .nowring circle{fill:none;stroke-width:7}
-  .nowring .track{stroke:rgba(80,40,40,.09)}
-  .nowring .arc{stroke:url(#arcgrad);stroke-linecap:round;transition:stroke-dashoffset .6s ease}
+  .now-detail{margin:var(--s3) 0 0;font-size:var(--t-subhead);color:var(--ink-2);line-height:1.45}
+  .nowring{position:relative;width:64px;height:64px;flex:0 0 auto}
+  .nowring svg{width:64px;height:64px;transform:rotate(-90deg);display:block}
+  .nowring circle{fill:none;stroke-width:6}
+  .nowring .track{stroke:var(--t-bg,var(--surface-2))}
+  .nowring .arc{stroke:var(--t-ink,var(--ink));stroke-linecap:round;transition:stroke-dashoffset .6s var(--ease)}
   .nowring span{position:absolute;inset:0;display:grid;place-items:center;font-weight:var(--w-semibold);font-size:var(--t-subhead)}
-  .now-actions{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s4);position:relative;z-index:1}
-  .now-next{margin:var(--s3) 0 0;padding-top:var(--s3);border-top:1px solid var(--line);
-    font-size:var(--t-footnote);color:var(--ink-2);position:relative;z-index:1}
+  .now-actions{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s4)}
+  .now-actions:not(:has(.btn:not(.hide))){display:none}
+  .now-next{margin:var(--s3) 0 0;padding-top:var(--s3);border-top:1px solid var(--line);font-size:var(--t-footnote);color:var(--ink-2)}
   .now-next b{color:var(--ink)}
 
-  /* ---------------- the day, as cards ----------------
-     After the reference: each block a card washed in its kind's colour, the
-     time underneath, a round check on the right. The check is a button of its
-     own; the rest of the card opens the block. Swipe right to tick, or swipe
-     far left to edit. Free time is a dashed card offering blocks to fill it. */
-  .part{margin-bottom:var(--s4)}
-  .parthead{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s2);padding:0 var(--s1) var(--s2)}
-  .parthead .label{font-family:var(--serif);font-size:var(--t-title3);font-weight:var(--w-bold);color:var(--ink)}
+  /* ---------------- the day, as a timetable ----------------
+     Each block is a white row: its times in a column of their own, a pastel
+     bar for its kind, its name and details, and a round check on the right.
+     The check is a button of its own; the rest of the row opens the block.
+     Swipe right to tick, or swipe far left to edit. Free time is a dashed row
+     offering blocks to fill it. */
+  .part{margin-bottom:var(--s5)}
+  .parthead{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s2);padding:0 2px var(--s2)}
+  .parthead .label{font-size:var(--t-callout);font-weight:var(--w-semibold);color:var(--ink)}
   .parthead .count{font-size:var(--t-footnote);font-weight:var(--w-medium);color:var(--ink-2);white-space:nowrap}
-  .cards{display:grid;gap:10px}
-  .swipe{position:relative;border-radius:20px;overflow:hidden;--p:0;--q:0}
+  .cards{display:grid;gap:8px}
+  .swipe{position:relative;border-radius:var(--radius);overflow:hidden;--p:0;--q:0}
   .swipe::before{
     content:attr(data-act);position:absolute;inset:0;display:flex;align-items:center;
-    padding-left:var(--s4);background:var(--grad);color:#fff;font-weight:var(--w-semibold);
+    padding-left:var(--s4);background:var(--done);color:#fff;font-weight:var(--w-semibold);
     font-size:var(--t-footnote);opacity:var(--p);border-radius:inherit;
   }
   .swipe::after{
     content:attr(data-edit);position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;
-    padding-right:var(--s4);background:var(--ink);color:#fff;font-weight:var(--w-semibold);
+    padding-right:var(--s4);background:var(--primary);color:#fff;font-weight:var(--w-semibold);
     font-size:var(--t-footnote);opacity:var(--q);border-radius:inherit;
   }
-  .card{position:relative;z-index:1;border-radius:20px;background:hsl(var(--h) 90% 91%);
-    box-shadow:inset 0 0 0 1px hsl(var(--h) 50% 76% / .65);touch-action:pan-y;
-    transition:transform .28s cubic-bezier(.3,1.3,.5,1),opacity .2s ease}
+  .card{position:relative;z-index:1;border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow-1);touch-action:pan-y;
+    transition:transform var(--d-3) var(--ease),opacity var(--d-2) ease,box-shadow var(--d-2) ease}
+  .card::before{content:"";position:absolute;left:8px;top:12px;bottom:12px;width:4px;border-radius:4px;background:var(--t-2);z-index:1;pointer-events:none}
   .swiping .card{transition:none}
-  .c-open{display:block;width:100%;min-height:78px;padding:14px 66px 14px 16px;border:0;border-radius:inherit;background:none;
-    font:inherit;color:var(--ink);text-align:left;cursor:pointer;touch-action:pan-y}
-  .c-open:active{background:rgba(255,255,255,.4)}
-  .c-ttl{display:block;font-size:var(--t-callout);font-weight:var(--w-bold);line-height:var(--lh-tight)}
-  .c-det{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:4px;
-    font-size:var(--t-subhead);line-height:1.4;color:#3a3235}
+  .c-open{display:grid;grid-template-columns:4.3em minmax(0,1fr);gap:var(--s3);align-items:start;width:100%;min-height:70px;
+    padding:13px 62px 13px 22px;border:0;border-radius:inherit;background:none;font:inherit;color:var(--ink);text-align:left;cursor:pointer;touch-action:pan-y}
+  .card.plan .c-open{padding-right:var(--s4)}
+  .c-open:active{background:var(--surface-2)}
+  @media (hover:hover){.c-open:hover{background:var(--surface-2)}}
+  .c-when{display:grid;gap:2px;padding-top:1px;font-size:var(--t-footnote);line-height:1.25;white-space:nowrap}
+  .c-when b{font-weight:var(--w-semibold);color:var(--ink)}
+  .c-when small{font-size:var(--t-caption);font-weight:var(--w-medium);color:var(--ink-2)}
+  .c-main{min-width:0}
+  .c-ttl{display:block;font-size:var(--t-callout);font-weight:var(--w-semibold);line-height:var(--lh-tight);overflow-wrap:anywhere}
+  .c-det{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:3px;
+    font-size:var(--t-subhead);line-height:1.4;color:var(--ink-2)}
   .c-det:empty{display:none}
-  .c-time{display:block;margin-top:6px;font-size:var(--t-caption);font-weight:var(--w-semibold);color:var(--ink-2)}
-  .c-time b{color:var(--tint-text);font-weight:var(--w-semibold)}
-  .c-tick{position:absolute;right:10px;top:50%;width:44px;height:44px;margin-top:-22px;padding:0;border:0;border-radius:50%;
-    background:none;cursor:pointer;display:grid;place-items:center}
-  .c-tick i{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
-    background:rgba(255,255,255,.6);box-shadow:inset 0 0 0 2px hsl(var(--h) 30% 40% / .45)}
-  .c-tick svg{width:15px;height:15px;fill:none;stroke:#fff;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;
-    stroke-dasharray:21;stroke-dashoffset:21}
-  .done .c-tick i,.c-tick[aria-pressed="true"] i{background:var(--grad);box-shadow:0 4px 10px -4px rgba(196,42,92,.7)}
+  .c-time{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:7px;font-size:var(--t-caption);font-weight:var(--w-medium);color:var(--ink-2)}
+  .c-time b{color:var(--t-ink);font-weight:var(--w-semibold)}
+  .tchip{display:inline-block;padding:2px 8px;border-radius:999px;background:var(--t-bg);color:var(--t-ink);font-size:var(--t-caption2);font-weight:var(--w-semibold);line-height:1.5}
+  .c-tick{position:absolute;right:8px;top:50%;width:44px;height:44px;margin-top:-22px;padding:0;border:0;border-radius:50%;
+    background:none;cursor:pointer;display:grid;place-items:center;z-index:2}
+  .c-tick i{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--surface);box-shadow:inset 0 0 0 1.75px var(--line-2)}
+  .c-tick svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;
+    stroke-dasharray:21;stroke-dashoffset:21;transition:stroke-dashoffset var(--d-2) var(--ease)}
+  @media (hover:hover){.c-tick:hover i{box-shadow:inset 0 0 0 1.75px var(--done)}}
+  .done .c-tick i,.c-tick[aria-pressed="true"] i{background:var(--done);box-shadow:none}
   .done .c-tick svg,.c-tick[aria-pressed="true"] svg{stroke-dashoffset:0}
   .card.past:not(.done){opacity:.62}
-  .card.now{box-shadow:inset 0 0 0 2px hsl(var(--h) 55% 52%),0 14px 28px -18px hsl(var(--h) 60% 30% / .7)}
-  .card.now::after{content:"";position:absolute;left:16px;right:66px;bottom:9px;height:3px;border-radius:3px;
-    background:linear-gradient(90deg,var(--tint) calc(var(--p) * 100%),rgba(80,40,40,.12) 0)}
-  .card.pop .c-tick i{animation:tick-pop .4s ease-out}
-  .card.pop .c-tick svg{animation:tick-draw .25s .06s ease-out both}
-  @keyframes tick-pop{30%{transform:scale(.86)}70%{transform:scale(1.08)}}
+  .card.done .c-ttl{color:var(--ink-2)}
+  .card.now{box-shadow:0 0 0 2px var(--t-2),var(--shadow-1)}
+  .card.now::after{content:"";position:absolute;left:22px;right:62px;bottom:8px;height:3px;border-radius:3px;
+    background:linear-gradient(90deg,var(--t-ink) calc(var(--p) * 100%),var(--surface-2) 0)}
+  .card.pop .c-tick i{animation:tick-pop var(--d-3) var(--ease)}
+  .card.pop .c-tick svg{animation:tick-draw var(--d-2) 60ms var(--ease) both}
+  @keyframes tick-pop{35%{transform:scale(.86)}}
   @keyframes tick-draw{from{stroke-dashoffset:21}}
-  /* Arriving on Today or on a day in Week, the cards rise in one after another. */
-  .draw .swipe,.draw .gapcard,.draw.cards>.swipe,.draw.cards>.gapcard{animation:rise-in .42s cubic-bezier(.3,1.2,.5,1) var(--d,0s) both}
-  @keyframes rise-in{from{transform:translateY(14px);opacity:0}}
-  .gapcard{border-radius:20px;padding:14px 16px;border:2px dashed rgba(80,40,40,.22);background:rgba(255,255,255,.4)}
-  .gapcard .c-ttl{color:var(--ink-2);font-weight:var(--w-semibold)}
-  .gapcard .c-time{margin-top:2px}
-  .gapcard.past{opacity:.7}
+  /* Arriving on Today, the rows rise in one after another. */
+  .draw .swipe,.draw .gapcard{animation:rise-in var(--d-3) var(--ease) var(--d,0s) both}
+  @keyframes rise-in{from{transform:translateY(8px);opacity:0}}
+  /* Picking another day in Week, the day slides in from its side. */
+  .swap{animation:swap-in var(--d-3) var(--ease)}
+  @keyframes swap-in{from{opacity:0;transform:translateX(calc(var(--dir,1) * 16px))}}
+  .gapcard{display:grid;grid-template-columns:4.3em minmax(0,1fr);gap:var(--s3);align-items:start;border-radius:var(--radius);
+    padding:12px 14px 12px 20.5px;border:1.5px dashed var(--line-2);background:transparent;transition:background-color var(--d-2) ease,border-color var(--d-2) ease}
+  .gapcard .c-ttl{color:var(--ink-2);font-weight:var(--w-semibold);font-size:var(--t-subhead);padding-top:1px}
+  .gapcard .c-time{display:block;margin-top:1px}
+  .gapcard.past{opacity:.62}
+  .gapcard.now{border-color:var(--lav-2);background:rgba(220,214,247,.28)}
+  .gapcard.now .c-ttl{color:var(--lav-ink)}
   .ideas{display:flex;flex-wrap:wrap;gap:6px;margin-top:var(--s2)}
   .idea{font:inherit;font-size:var(--t-footnote);font-weight:var(--w-semibold);line-height:var(--lh-tight);min-height:44px;max-width:100%;
     padding:6px 14px;border-radius:999px;border:0;cursor:pointer;display:inline-flex;align-items:center;text-align:left;
-    color:var(--tint-text);background:#fff;box-shadow:0 2px 6px -3px rgba(90,30,30,.3)}
-  .idea.other{color:var(--ink);background:rgba(255,255,255,.6);box-shadow:inset 0 0 0 1px rgba(80,40,40,.12)}
+    color:var(--ink);background:var(--surface);box-shadow:var(--shadow-1)}
+  .idea.other{color:var(--ink-2);background:transparent;box-shadow:inset 0 0 0 1px var(--line-2)}
+  @media (hover:hover){.idea:hover{background:var(--surface-2)}.idea.other:hover{background:var(--surface)}}
   .emptyday{padding:var(--s5) var(--s4) var(--s4);text-align:center}
-  .emptyday .ed-art svg{width:100%;max-width:240px;height:auto;display:block;margin:0 auto}
+  .emptyday .ed-art svg{width:100%;max-width:220px;height:auto;display:block;margin:0 auto}
   .ed-h{margin:var(--s3) 0 0;font-size:var(--t-title2)}
-  .ed-p{margin:var(--s1) auto var(--s4);max-width:30ch;font-size:var(--t-subhead);color:var(--ink-2)}
+  .ed-p{margin:var(--s1) auto var(--s4);max-width:32ch;font-size:var(--t-subhead);color:var(--ink-2)}
+  .ed-acts{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--s2)}
 
-  /* ---------------- due ---------------- */
+  /* ---------------- due: assignments, exams and quizzes ----------------
+     Rows rather than cards, so a week of deadlines fits on one screen. Each
+     says what kind it is with an icon and a colour (blue for an assignment,
+     lavender for an exam, peach for a quiz), and how it stands with a word
+     and a colour: Upcoming, Due soon, Overdue or Completed. Only Overdue uses
+     the strong colour. */
+  .k-ic{flex:none;width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:var(--t-bg);color:var(--t-ink)}
+  .k-ic svg{width:19px;height:19px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .st{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:var(--t-caption);font-weight:var(--w-semibold);
+    line-height:1.35;white-space:nowrap;background:var(--grey);color:var(--grey-ink);transition:background-color var(--d-2) ease,color var(--d-2) ease}
+  .st::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+  .st.soon{background:var(--butter);color:var(--butter-ink)}
+  .st.late{background:var(--rose);color:var(--rose-ink)}
+  .st.done{background:var(--sage);color:var(--sage-ink)}
+  .cd{display:inline-block;font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--ink);white-space:nowrap}
+  .cd.late{color:var(--late)}
+  /* A countdown that has just changed rolls up into its new value. */
+  .cd.roll{animation:roll var(--d-2) var(--ease)}
+  @keyframes roll{from{opacity:0;transform:translateY(5px)}}
+
+  /* Coming up, on Today. */
   .duesoon{padding:var(--s4) var(--s4) var(--s2)}
   .due-head{display:flex;justify-content:space-between;align-items:center;gap:var(--s2)}
-  .due-head h2{font-family:var(--serif);font-weight:var(--w-bold)}
-  .link{font:inherit;font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--tint-text);background:none;border:0;
-    min-height:44px;padding:0 4px;margin:-8px -4px;cursor:pointer;border-radius:10px}
-  .duerow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--s2);align-items:center;width:100%;min-height:52px;
-    padding:8px 0;border:0;border-top:1px solid var(--line);background:none;font:inherit;color:var(--ink);text-align:left;cursor:pointer}
-  .duerow:first-of-type{border-top:0}
-  .duerow .t{display:block;font-weight:var(--w-semibold);font-size:var(--t-callout);line-height:var(--lh-tight)}
-  .duerow .w{display:block;font-size:var(--t-footnote);color:var(--ink-2)}
-  .left-pill{display:inline-block;padding:3px 9px;border-radius:99px;font-size:var(--t-caption);font-weight:var(--w-semibold);
-    background:rgba(80,40,40,.07);color:var(--ink-2);white-space:nowrap}
-  .left-pill.soon{background:#ffe1d9;color:#8f2418}
-  .left-pill.late{background:var(--tint);color:#fff}
-  .pill{display:inline-block;padding:4px 11px;border-radius:999px;font-size:var(--t-footnote);font-weight:var(--w-semibold);
-    background:hsl(var(--h,24) var(--pill-s) var(--pill-l));color:hsl(var(--h,24) var(--pill-ink-s) var(--pill-ink-l))}
-  .duegroup{margin-bottom:var(--s4)}
-  .task{position:relative;border-radius:20px;background:#fff;box-shadow:0 10px 24px -18px rgba(120,40,30,.45),inset 0 0 0 1px rgba(80,40,40,.07)}
-  .task+.task{margin-top:10px}
-  .t-open{display:block;width:100%;min-height:84px;padding:14px 66px 14px 16px;border:0;border-radius:inherit;background:none;
-    font:inherit;color:var(--ink);text-align:left;cursor:pointer}
-  .t-open:active{background:var(--press)}
-  .t-top{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-  .t-top:empty{display:none}
-  .t-ttl{display:block;margin-top:8px;font-family:var(--serif);font-size:var(--t-title3);font-weight:var(--w-bold);line-height:var(--lh-title)}
-  .t-top:empty+.t-ttl{margin-top:0}
-  .t-when{display:block;margin-top:4px;font-size:var(--t-footnote);color:var(--ink-2)}
-  .task.late{box-shadow:0 10px 24px -18px rgba(120,40,30,.45),inset 0 0 0 2px rgba(210,60,51,.55)}
-  .task.done .t-ttl{color:var(--ink-2)}
-  .task .c-tick i{box-shadow:inset 0 0 0 2px rgba(80,40,40,.3)}
+  .due-head h2{font-size:var(--t-callout);font-weight:var(--w-semibold)}
+  .link{font:inherit;font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--lav-ink);background:none;border:0;
+    min-height:44px;padding:0 6px;margin:-8px -6px;cursor:pointer;border-radius:10px}
+  @media (hover:hover){.link:hover{background:var(--surface-2)}}
+  .duerow{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:var(--s3);align-items:center;width:100%;min-height:58px;
+    padding:9px 6px;margin:0 -6px;width:calc(100% + 12px);border:0;border-top:1px solid var(--line);border-radius:10px;background:none;font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+  .duerow:first-of-type{border-top-color:transparent}
+  @media (hover:hover){.duerow:hover{background:var(--surface-2)}}
+  .duerow .t{display:block;font-weight:var(--w-semibold);font-size:var(--t-callout);line-height:var(--lh-tight);overflow-wrap:anywhere}
+  .duerow .w{display:block;margin-top:1px;font-size:var(--t-footnote);color:var(--ink-2)}
+  .duerow .tk-side{display:grid;justify-items:end;gap:3px}
+
+  /* The Due page. */
+  .due-top{display:grid;gap:var(--s3);margin-bottom:var(--s4)}
+  .due-adds{display:flex;flex-wrap:wrap;gap:var(--s2)}
+  .due-add{flex:1 1 auto;display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:46px;padding:0 10px;border:0;border-radius:var(--radius-sm);
+    background:var(--t-bg);color:var(--t-ink);font:inherit;font-size:var(--t-footnote);font-weight:var(--w-semibold);cursor:pointer;white-space:nowrap}
+  .due-add svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .due-add span{overflow:hidden;text-overflow:ellipsis}
+  @media (hover:hover){.due-add:hover{box-shadow:inset 0 0 0 1.5px var(--t-2)}}
+  /* A segmented control, as in iOS: All, or one kind. */
+  .seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:2px;padding:3px;border-radius:var(--radius-sm);background:var(--surface-3)}
+  .seg button{font:inherit;font-size:var(--t-footnote);font-weight:var(--w-semibold);min-height:40px;min-width:0;padding:0 4px;border:0;border-radius:9px;
+    background:transparent;color:var(--ink-2);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(48,52,59,.1),0 2px 8px -2px rgba(48,52,59,.12)}
+  @media (hover:hover){.seg button:not([aria-pressed="true"]):hover{color:var(--ink);background:rgba(255,255,255,.5)}}
+  /* Which to show: chips that wrap onto a second line on a narrow phone. */
+  .fchips{display:flex;flex-wrap:wrap;gap:6px}
+  .fchips button{font:inherit;font-size:var(--t-footnote);font-weight:var(--w-semibold);min-height:40px;padding:0 13px;border:0;border-radius:999px;
+    background:var(--surface);color:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line-2);cursor:pointer;
+    transition:background-color var(--d-2) var(--ease),color var(--d-2) ease,box-shadow var(--d-2) ease}
+  .fchips button[aria-pressed="true"]{background:var(--ink);color:#fff;box-shadow:none}
+  @media (hover:hover){.fchips button:not([aria-pressed="true"]):hover{background:var(--surface-2);color:var(--ink)}}
+  /* The next exam or quiz, when one is close, above the list. */
+  .nextup{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--s3);align-items:center;width:100%;margin:0 0 var(--s4);
+    padding:var(--s4) var(--s4) var(--s4) calc(var(--s4) + 6px);border:0;font:inherit;color:var(--ink);text-align:left;cursor:pointer;overflow:hidden}
+  .nextup::before{content:"";position:absolute;left:8px;top:14px;bottom:14px;width:4px;border-radius:4px;background:var(--t-2)}
+  @media (hover:hover){.nextup:hover{background:#fdfcfa}}
+  .nu-k{display:block;font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--t-ink)}
+  .nu-t{display:block;margin-top:3px;font-size:var(--t-title3);font-weight:var(--w-bold);line-height:var(--lh-title);overflow-wrap:anywhere}
+  .nu-w{display:block;margin-top:3px;font-size:var(--t-footnote);color:var(--ink-2)}
+  .nu-n{display:grid;justify-items:center;align-content:center;min-width:76px;min-height:72px;padding:8px 10px;border-radius:var(--radius-sm);background:var(--t-bg);color:var(--t-ink)}
+  .nu-n b{font-size:var(--t-title1);font-weight:var(--w-bold);line-height:1.05}
+  .nu-n small{font-size:var(--t-caption);font-weight:var(--w-semibold)}
+  .duegroup{margin-bottom:var(--s5)}
+  .tklist{border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow-1);overflow:hidden}
+  .tk{position:relative;border-top:1px solid var(--line)}
+  .tk:first-child{border-top:0}
+  .tk-open{display:grid;grid-template-columns:36px minmax(0,1fr);gap:4px var(--s3);align-items:center;width:100%;min-height:68px;
+    padding:12px 60px 12px 14px;border:0;background:none;font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+  .tk-open:active{background:var(--surface-2)}
+  @media (hover:hover){.tk-open:hover{background:var(--surface-2)}}
+  .tk-open .k-ic{grid-row:1 / span 2;align-self:start}
+  .tk-body{min-width:0}
+  .tk-ttl{display:block;font-size:var(--t-callout);font-weight:var(--w-semibold);line-height:var(--lh-tight);overflow-wrap:anywhere}
+  .tk-meta{display:block;margin-top:2px;font-size:var(--t-footnote);color:var(--ink-2)}
+  .tk-open .tk-side{grid-column:2;display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+  .tk.done .tk-ttl{color:var(--ink-2)}
+  .tk.done .k-ic{opacity:.6}
+  .tk.late::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 3px 3px 0;background:var(--late)}
+  .tk .c-tick{right:8px}
+  /* Just added or changed, a row glows lavender for a moment. */
+  .tk.fresh{animation:fresh .9s var(--ease)}
+  @keyframes fresh{from{background:var(--lav)}}
+  @media (min-width:560px){
+    .tk-open{grid-template-columns:36px minmax(0,1fr) auto}
+    .tk-open .k-ic{grid-row:auto;align-self:center}
+    .tk-open .tk-side{grid-column:3;display:grid;justify-items:end;gap:4px}
+  }
   .files{display:grid;gap:8px;margin-top:var(--s2)}
   .file{display:grid;grid-template-columns:40px minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:8px 8px 8px 10px;
-    border-radius:16px;background:#fff;box-shadow:inset 0 0 0 1px rgba(80,40,40,.08)}
-  .file .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:#ffe9dc;color:var(--tint-text);overflow:hidden}
+    border-radius:var(--radius-sm);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+  .file .ic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--blue);color:var(--blue-ink);overflow:hidden}
   .file .ic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
   .file .ic img{width:100%;height:100%;object-fit:cover;display:block}
   .file .nm{min-width:0}
   .file .nm b{display:block;font-size:var(--t-subhead);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .file .nm small{display:block;font-size:var(--t-caption);color:var(--ink-2)}
   .file .btn{min-height:44px;padding:0 14px;font-size:var(--t-footnote)}
-  .file .x{width:44px;height:44px;border:0;background:none;color:var(--ink-2);font-size:20px;cursor:pointer;border-radius:12px}
+  .file .x{width:44px;height:44px;border:0;background:none;color:var(--ink-2);font-size:20px;cursor:pointer;border-radius:10px}
+  @media (hover:hover){.file .x:hover{background:var(--surface-2)}}
 
   /* ---------------- a block, opened ---------------- */
-  .d-art{height:176px;border-radius:24px;overflow:hidden;background:hsl(var(--h,24) 90% 91%);
-    box-shadow:inset 0 0 0 1px hsl(var(--h,24) 50% 76% / .6)}
+  .d-art{height:168px;border-radius:var(--radius);overflow:hidden;background:var(--t-bg,var(--grey))}
   .d-art svg{width:100%;height:100%;display:block}
   .d-title{margin:var(--s4) 0 0;font-family:var(--serif);font-size:var(--t-title1);font-weight:var(--w-bold);line-height:1.1;letter-spacing:-.01em}
   .d-meta{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center;margin-top:var(--s3)}
   .d-when{margin:var(--s3) 0 0;font-size:var(--t-subhead);font-weight:var(--w-medium);color:var(--ink-2)}
   .d-det{margin:var(--s3) 0 0;font-size:var(--t-callout);line-height:1.5}
+  .pill{display:inline-block;padding:4px 11px;border-radius:999px;font-size:var(--t-footnote);font-weight:var(--w-semibold);
+    background:var(--t-bg,var(--grey));color:var(--t-ink,var(--grey-ink))}
+  .left-pill{display:inline-block;padding:4px 11px;border-radius:999px;font-size:var(--t-footnote);font-weight:var(--w-semibold);
+    background:var(--lav);color:var(--lav-ink);white-space:nowrap}
 
   /* ---------------- schedule list ---------------- */
   .seccard{overflow:hidden}
   .sechead{margin:0;padding:var(--s3) var(--s4) var(--s1);font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--ink-2)}
   .item{
-    position:relative;display:grid;grid-template-columns:4px 3.3em 1fr auto;gap:var(--s3);align-items:center;
+    position:relative;display:grid;grid-template-columns:4px 3.6em 1fr auto;gap:var(--s3);align-items:center;
     width:100%;min-height:58px;padding:var(--s3) var(--s4) var(--s3) 0;border:0;border-top:1px solid var(--line);
     background:transparent;font:inherit;color:var(--ink);text-align:left;cursor:pointer;
   }
-  .cat{align-self:stretch;width:4px;border-radius:0 99px 99px 0;background:hsl(var(--h) var(--cat-s) var(--cat-l))}
-  .when{font-size:var(--t-footnote);font-weight:var(--w-medium);color:var(--ink-2);text-align:right}
+  @media (hover:hover){.item:hover{background:var(--surface-2)}}
+  .cat{align-self:stretch;width:4px;border-radius:0 4px 4px 0;background:var(--t-2,hsl(var(--h,0) 42% 72%))}
+  .when{font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--ink-2);text-align:right}
   .ttl{display:block;font-size:var(--t-callout);font-weight:var(--w-semibold);line-height:var(--lh-tight)}
-  .meta{display:block;font-size:var(--t-footnote);color:var(--ink-2);margin-top:1px}
+  .meta{display:block;font-size:var(--t-footnote);color:var(--ink-2);margin-top:2px}
   .tick{
-    width:26px;height:26px;border-radius:99px;border:2px solid rgba(80,40,40,.22);
-    display:grid;place-items:center;font-size:14px;line-height:1;color:transparent;
+    width:26px;height:26px;border-radius:99px;border:1.75px solid var(--line-2);
+    display:grid;place-items:center;font-size:13px;line-height:1;color:transparent;transition:background-color var(--d-2) ease,border-color var(--d-2) ease;
   }
-  .item.now{background:hsl(var(--h) 80% 70% / .18)}
+  .item.now{background:hsl(var(--h,250) 70% 96%)}
   .item.past:not(.done) .when,.item.past:not(.done) .body{opacity:.55}
-  .item.done .tick{background:var(--grad);border-color:transparent;color:#fff}
+  .item.done .tick{background:var(--done);border-color:var(--done);color:#fff}
   .item.done .ttl{color:var(--ink-2)}
-  .item.done .cat{opacity:.3}
-  .chip{display:inline-block;font-size:var(--t-caption2);font-weight:var(--w-semibold);padding:2px 8px;border-radius:99px;
-    margin-right:6px;background:hsl(var(--h) var(--pill-s) var(--pill-l));color:hsl(var(--h) var(--pill-ink-s) var(--pill-ink-l))}
+  .item.done .cat{opacity:.35}
+  .chip{display:inline-block;font-size:var(--t-caption2);font-weight:var(--w-semibold);padding:2px 8px;border-radius:99px;margin-right:6px;
+    background:var(--t-bg,var(--grey));color:var(--t-ink,var(--grey-ink))}
   .empty{margin:0;padding:var(--s5) var(--s4);text-align:center;color:var(--ink-2);font-size:var(--t-subhead)}
 
   /* ---------------- week ---------------- */
-  .daysel{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;padding:4px;border-radius:999px;margin-bottom:var(--s3)}
+  .daysel{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;padding:4px;border-radius:var(--radius-sm);margin-bottom:var(--s3)}
   .chip-btn{
-    font:inherit;font-size:var(--t-footnote);font-weight:var(--w-semibold);min-height:44px;min-width:0;padding:0 2px;
-    border-radius:999px;border:0;background:transparent;color:var(--ink);cursor:pointer;
+    position:relative;font:inherit;font-size:var(--t-footnote);font-weight:var(--w-semibold);min-height:46px;min-width:0;padding:0 2px;
+    border-radius:9px;border:0;background:transparent;color:var(--ink-2);cursor:pointer;
   }
-  .chip-btn[aria-pressed="true"]{background:var(--grad);color:#fff}
-  .dayhead{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s3);padding:var(--s2) var(--s1) var(--s3)}
+  /* Today is marked with a dot, whichever day is picked. */
+  .chip-btn.today::after{content:"";position:absolute;left:50%;bottom:5px;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--lav-ink)}
+  .chip-btn[aria-pressed="true"]{background:var(--ink);color:#fff}
+  .chip-btn[aria-pressed="true"].today::after{background:#fff}
+  @media (hover:hover){.chip-btn:not([aria-pressed="true"]):hover{background:var(--surface-2);color:var(--ink)}}
+  .dayhead{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s3);padding:var(--s2) 2px var(--s3)}
   .dayhead h2{font-family:var(--serif);font-size:var(--t-title2);font-weight:var(--w-bold)}
   .dayhead span{font-size:var(--t-footnote);font-weight:var(--w-medium)}
   .heat-wrap{padding:var(--s4);margin-top:var(--s4)}
   .heatgrid{display:grid;grid-template-columns:auto repeat(8,1fr);gap:5px;margin-top:var(--s3);max-width:340px}
   .heatgrid .hl{font-size:var(--t-caption2);font-weight:var(--w-medium);color:var(--ink-2);display:grid;place-items:center;padding-right:4px}
-  .hc{aspect-ratio:1;border-radius:7px;background:rgba(80,40,40,.07)}
-  .hc[data-l="1"]{background:#ffd9c9}.hc[data-l="2"]{background:#ffb39a}
-  .hc[data-l="3"]{background:#f2795f}.hc[data-l="4"]{background:#c42a5c}
-  .hc.future{background:transparent;box-shadow:inset 0 0 0 1px rgba(80,40,40,.08)}
+  .hc{aspect-ratio:1;border-radius:6px;background:var(--surface-2)}
+  .hc[data-l="1"]{background:#e2eedf}.hc[data-l="2"]{background:#bcd8b5}
+  .hc[data-l="3"]{background:#88b77f}.hc[data-l="4"]{background:var(--done)}
+  .hc.future{background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
   .hc.today{box-shadow:0 0 0 2px var(--ink)}
   .legend{display:flex;align-items:center;gap:5px;margin-top:var(--s3);font-size:var(--t-caption);font-weight:var(--w-medium);color:var(--ink-2)}
   .legend .hc{width:12px}
 
+  /* ---------------- forms ---------------- */
   form{display:grid;gap:var(--s3)}
   label{font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--ink-2);display:block;margin-bottom:4px}
   input,select,textarea{
     font:inherit;font-size:max(16px,var(--t-callout));width:100%;max-width:100%;
-    background:rgba(255,255,255,.7);color:var(--ink);border:1px solid rgba(15,20,40,.12);
-    border-radius:14px;padding:11px 13px;
+    background:var(--surface);color:var(--ink);border:1px solid var(--line-2);
+    border-radius:var(--radius-sm);padding:11px 13px;transition:border-color var(--d-1) ease,box-shadow var(--d-1) ease;
   }
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--focus);box-shadow:0 0 0 3px rgba(106,92,194,.2)}
+  input::placeholder,textarea::placeholder{color:#8a8e95}
   input[type="date"],input[type="time"],input[type="number"]{min-width:0}
   textarea{min-height:64px;resize:vertical}
   .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,8.5rem),1fr));gap:var(--s3)}
   .two>*{min-width:0}
   .dayrow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
   .dayrow button{font:inherit;font-size:var(--t-caption);font-weight:var(--w-semibold);min-width:0;min-height:44px;
-    padding:0 2px;border-radius:14px;border:1px solid rgba(15,20,40,.12);background:rgba(255,255,255,.6);
-    color:var(--ink-2);cursor:pointer}
-  body.big-type .dayrow{grid-template-columns:repeat(4,minmax(0,1fr))}
-  .dayrow button[aria-pressed="true"]{background:var(--tint);border-color:var(--tint);color:#fff}
+    padding:0 2px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);cursor:pointer}
+  .dayrow button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
   .note{margin:var(--s1) 0 0;font-size:var(--t-caption);color:var(--ink-2)}
-  .err{margin:var(--s1) 0 0;font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--flag-text)}
-  /* A clash lists what is in the way and what making room does to each.
-     Opaque, so its text holds 6.7:1 whatever sky sits behind the card. */
-  .clash{margin-top:var(--s2);padding:var(--s3);border-radius:var(--radius-sm);background:#fff4ec;
-    box-shadow:inset 0 0 0 1px rgba(194,65,12,.22)}
-  .clash-lead{margin:0;font-size:var(--t-subhead);font-weight:var(--w-semibold);color:var(--flag-text)}
+  .err{margin:var(--s1) 0 0;font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--late)}
+  /* A clash lists what is in the way and what making room does to each. */
+  .clash{margin-top:var(--s2);padding:var(--s3);border-radius:var(--radius-sm);background:#fdf2ec;box-shadow:inset 0 0 0 1px #f0cdb9}
+  .clash-lead{margin:0;font-size:var(--t-subhead);font-weight:var(--w-semibold);color:var(--peach-ink)}
   .clash-sub{margin:2px 0 0;font-size:var(--t-footnote);font-weight:var(--w-medium);color:var(--ink-2)}
   .clash ul{margin:var(--s2) 0 0;padding:0;list-style:none;display:grid;gap:6px}
   .clash li{font-size:var(--t-footnote);line-height:1.4}
   .clash li b{font-weight:var(--w-semibold)}
   .clash .btn{margin-top:var(--s3)}
-  .overlap{color:var(--flag-text);font-weight:var(--w-semibold)}
+  .overlap{color:var(--late);font-weight:var(--w-semibold)}
   .confirm{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center;margin-top:var(--s3);
-    padding:var(--s3);border-radius:var(--radius-sm);background:rgba(194,65,12,.08)}
+    padding:var(--s3);border-radius:var(--radius-sm);background:#fdf2ec}
   .confirm p{margin:0;flex:1 1 11em;font-size:var(--t-footnote);font-weight:var(--w-medium)}
-
-
-  .dayrow button[aria-pressed="true"]{background:var(--grad);border-color:transparent;color:#fff}
-  .sheet h2{font-family:var(--serif);font-weight:var(--w-bold)}
   .steps{margin:var(--s3) 0 0;padding-left:1.25em;display:grid;gap:var(--s4)}
   .steps li{font-size:var(--t-subhead);line-height:1.5}
-  .steps li::marker{font-family:var(--serif);font-weight:var(--w-bold);color:var(--tint-text)}
-  .steps a{color:var(--tint-text);font-weight:var(--w-semibold)}
+  .steps li::marker{font-family:var(--serif);font-weight:var(--w-bold);color:var(--lav-ink)}
+  .steps a{color:var(--lav-ink);font-weight:var(--w-semibold)}
   textarea.code{margin-top:var(--s2);min-height:180px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.45;white-space:pre}
   .shots{display:flex;flex-wrap:wrap;gap:var(--s2);margin-bottom:var(--s2)}
   .shots:empty{display:none}
-  .shot{position:relative;width:66px;height:66px;border-radius:16px;overflow:hidden;
-    box-shadow:0 6px 16px -8px rgba(8,10,40,.5)}
+  .shot{position:relative;width:66px;height:66px;border-radius:var(--radius-sm);overflow:hidden;box-shadow:var(--shadow-1)}
   .shot .open{display:block;width:100%;height:100%;padding:0;border:0;background:none;cursor:pointer}
   .shot img{width:100%;height:100%;object-fit:cover;display:block}
   /* A 24px badge, but a 40px corner to hit. */
   .shot .drop{position:absolute;top:0;right:0;width:40px;height:40px;border:0;padding:0;background:none;cursor:pointer;
     display:grid;place-items:start end}
-  .shot .drop span{width:24px;height:24px;margin:3px 3px 0 0;border-radius:99px;background:rgba(10,10,20,.6);color:#fff;
+  .shot .drop span{width:24px;height:24px;margin:3px 3px 0 0;border-radius:99px;background:rgba(48,52,59,.7);color:#fff;
     font-size:15px;line-height:1;display:grid;place-items:center}
 
   /* ---------------- solat ---------------- */
-  /* Each prayer wears the sky of its hour: dawn rose, noon blue, afternoon
-     amber, sunset violet, night indigo. Status is always a word too. */
+  /* Each prayer keeps a hue of its hour: dawn rose, noon blue, afternoon
+     amber, sunset violet, night indigo, all softened to pastel. Status is
+     always a word too. */
   .s-head{padding:var(--s4) var(--s4) var(--s3)}
   .s-head h2{margin-top:4px}
   .s-sub{margin:2px 0 0;font-size:var(--t-footnote);font-weight:var(--w-medium);color:var(--ink-2)}
@@ -471,49 +544,52 @@
   .s-src{margin:0;padding:var(--s3) var(--s4);border-top:1px solid var(--line);font-size:var(--t-caption);color:var(--ink-2)}
   .plist .item:first-child{border-top:0}
   .item .tag{white-space:nowrap;font-weight:var(--w-semibold)}
-  .item .ok{color:#14532d;font-weight:var(--w-semibold)}
-  .item .flagt{color:var(--flag-text);font-weight:var(--w-semibold)}
-  .item .nowt{color:var(--tint-text);font-weight:var(--w-semibold)}
-  .item.owed .tick{border-color:var(--flag);background:rgba(194,65,12,.08)}
+  .item .ok{color:var(--sage-ink);font-weight:var(--w-semibold)}
+  .item .flagt{color:var(--peach-ink);font-weight:var(--w-semibold)}
+  .item .nowt{color:var(--lav-ink);font-weight:var(--w-semibold)}
+  .item.owed .tick{border-color:var(--peach-2);background:var(--peach)}
   .item.excused .tick{border-style:dashed}
   .item.excused .ttl{color:var(--ink-2)}
   .q-break{display:flex;flex-wrap:wrap;gap:6px;margin-top:var(--s2)}
   .q-break:empty{display:none}
   .qchip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;
-    font-size:var(--t-caption);font-weight:var(--w-semibold);background:hsl(var(--h) 70% 89%);color:hsl(var(--h) 50% 20%)}
+    font-size:var(--t-caption);font-weight:var(--w-semibold);background:hsl(var(--h) 60% 92%);color:hsl(var(--h) 45% 24%)}
   .qchip b{font-weight:var(--w-bold)}
   .qrow{display:grid;grid-template-columns:4px 1fr auto;gap:var(--s3);align-items:center;
     padding:var(--s2) var(--s4) var(--s2) 0;border-top:1px solid var(--line)}
   .qrow .cat{align-self:stretch}
   .qbody{font:inherit;color:var(--ink);background:none;border:0;padding:6px 0;text-align:left;cursor:pointer;
     min-height:44px;border-radius:10px;min-width:0}
-  .qbody:active{background:var(--press)}
+  .qbody:active{background:var(--surface-2)}
   .qrow .btn{padding:0 14px;font-size:var(--t-footnote)}
   .q-more{display:block;width:100%;min-height:44px;border:0;border-top:1px solid var(--line);background:none;
-    font:inherit;font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--tint-text);cursor:pointer}
+    font:inherit;font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--lav-ink);cursor:pointer}
+  @media (hover:hover){.q-more:hover{background:var(--surface-2)}}
   .about summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;
-    gap:var(--s3);min-height:44px;border-radius:12px}
+    gap:var(--s3);min-height:44px;border-radius:10px}
   .about summary::-webkit-details-marker{display:none}
   .about summary .label{display:block}
-  .about .chev{font-size:var(--t-title2);font-weight:var(--w-semibold);color:var(--ink-2);transition:transform .2s ease}
+  .about .chev{font-size:var(--t-title2);font-weight:var(--w-semibold);color:var(--ink-2);transition:transform var(--d-2) var(--ease)}
   .about[open] .chev{transform:rotate(90deg)}
+  /* Opening a section, what it holds fades in under its heading. */
+  details[open]>:not(summary){animation:view-in var(--d-3) var(--ease)}
   .about dl{margin:var(--s4) 0 0;display:grid;gap:var(--s3)}
   .about dt{font-size:var(--t-subhead);font-weight:var(--w-semibold)}
   .about dd{margin:2px 0 0;font-size:var(--t-subhead);color:var(--ink-2);line-height:1.5}
-  .about a{color:var(--tint-text);font-weight:var(--w-semibold);font-size:var(--t-footnote);white-space:nowrap}
+  .about a{color:var(--lav-ink);font-weight:var(--w-semibold);font-size:var(--t-footnote);white-space:nowrap}
   .about .niat{display:block;margin-top:4px;color:var(--ink);font-weight:var(--w-medium)}
   .about .note{margin-top:var(--s4)}
   .solat-mini{padding:var(--s3) var(--s4) var(--s4)}
   .sm-head{display:flex;justify-content:space-between;align-items:center;gap:var(--s2);min-height:32px}
-  .sm-q{font:inherit;font-size:var(--t-footnote);font-weight:var(--w-semibold);border:0;background:none;color:var(--tint-text);
+  .sm-q{font:inherit;font-size:var(--t-footnote);font-weight:var(--w-semibold);border:0;background:none;color:var(--lav-ink);
     cursor:pointer;min-height:44px;padding:0 6px;margin:-6px -6px -6px 0;border-radius:10px}
-  .sm-q.flag{color:var(--flag-text)}
+  .sm-q.flag{color:var(--peach-ink)}
   .sm-setup p{margin:var(--s1) 0 var(--s3);font-size:var(--t-subhead);color:var(--ink-2)}
   /* Five across even on a 320pt phone: the labels scale with the row, never
      below the 11pt minimum, and small phones give the row more of the card. */
   .pchips{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:var(--s2);container-type:inline-size}
-  .pchip{font:inherit;border:0;cursor:pointer;min-height:58px;padding:8px 2px;border-radius:16px;display:grid;
-    place-content:center;gap:3px;background:rgba(15,20,40,.05);color:var(--ink);text-align:center;min-width:0}
+  .pchip{font:inherit;border:0;cursor:pointer;min-height:58px;padding:8px 2px;border-radius:var(--radius-sm);display:grid;
+    place-content:center;gap:3px;background:var(--surface-2);color:var(--ink);text-align:center;min-width:0}
   .pchip b{font-size:max(11px,min(var(--t-footnote),4cqi));font-weight:var(--w-semibold);line-height:1.15}
   .pchip span{font-size:max(11px,min(var(--t-caption),3.7cqi));font-weight:var(--w-medium);color:var(--ink-2);line-height:1.15;white-space:nowrap}
   @media (max-width:359px){
@@ -521,49 +597,61 @@
     .pchips{gap:4px}
     .pchip{padding-left:0;padding-right:0}
   }
-  .pchip.on,.pchip.made{background:rgba(21,128,61,.12)}
-  .pchip.on span,.pchip.made span{color:#14532d}
-  .pchip.now{background:#fff;box-shadow:inset 0 0 0 2px var(--tint)}
-  .pchip.now span{color:var(--tint-text)}
-  .pchip.owed{background:rgba(194,65,12,.1)}
-  .pchip.owed span{color:#7c2d12}  /* the tint costs flag-text its 4.5:1 */
-  .pchip:active{transform:scale(.95)}
-  body.big-type .pchips{grid-template-columns:repeat(2,1fr)}
-  body.big-type .pchip b{font-size:var(--t-footnote)}
-  body.big-type .pchip span{font-size:var(--t-caption)}
-  /* Action sheet. Opaque, like the clash box: it sits over the busiest screens. */
-  .sheet{border:0;padding:0;margin:auto auto 0;width:100%;max-width:min(520px,100%);max-height:none;
+  .pchip.on,.pchip.made{background:var(--sage)}
+  .pchip.on span,.pchip.made span{color:var(--sage-ink)}
+  .pchip.now{background:var(--surface);box-shadow:inset 0 0 0 2px var(--lav-ink)}
+  .pchip.now span{color:var(--lav-ink)}
+  .pchip.owed{background:var(--peach)}
+  .pchip.owed span{color:var(--peach-ink)}
+
+  /* ---------------- sheets ---------------- */
+  /* Action sheets slide up from the bottom; on a tablet or computer they
+     open in the middle. Either way they fade and slide, in and out. */
+  .sheet{border:0;padding:0;margin:auto auto 0;width:100%;max-width:min(560px,100%);max-height:none;
     background:transparent;color:var(--ink);overflow:visible}
-  .sheet::backdrop{background:rgba(10,12,30,.5)}
-  .sheet-in{background:#fbf6f2;border-radius:28px 28px 0 0;box-shadow:0 -10px 40px -10px rgba(8,10,40,.5);
-    padding:var(--s5) max(var(--s4),env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + var(--s4)) max(var(--s4),env(safe-area-inset-left,0px))}
-  .sheet[open] .sheet-in{animation:rise .32s cubic-bezier(.3,1.2,.5,1)}
-  @keyframes rise{from{transform:translateY(40%);opacity:0}}
-  .sheet h2{margin-top:4px;font-size:var(--t-title2)}
+  .sheet::backdrop{background:var(--backdrop)}
+  .sheet[open]::backdrop{animation:fade-in var(--d-3) var(--ease)}
+  .sheet-in{background:var(--bg);border-radius:20px 20px 0 0;box-shadow:var(--shadow-2);
+    padding:var(--s5) max(var(--s4),env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + var(--s4)) max(var(--s4),env(safe-area-inset-left,0px));
+    max-height:92vh;max-height:calc(100dvh - 12px);overflow-y:auto;overscroll-behavior:contain}
+  .sheet[open] .sheet-in{animation:sheet-in var(--d-3) var(--ease)}
+  @keyframes sheet-in{from{transform:translateY(28px);opacity:0}}
+  .sheet.closing .sheet-in{animation:sheet-out var(--d-2) var(--ease-in) forwards}
+  .sheet.closing::backdrop{animation:fade-out var(--d-2) var(--ease-in) forwards}
+  @keyframes sheet-out{to{transform:translateY(24px);opacity:0}}
+  .sheet h2{margin-top:4px;font-family:var(--serif);font-size:var(--t-title2);font-weight:var(--w-bold)}
   .sheet .note{font-size:var(--t-footnote)}
   .sheet .btns{flex-direction:column;align-items:stretch;margin-top:var(--s4)}
   .sheet .btn{min-height:50px;font-size:var(--t-callout)}
-  .sheet-in{max-height:92vh;max-height:calc(100dvh - 12px);overflow-y:auto;overscroll-behavior:contain}
-  /* Page sheets, for the block editor and Settings: taller, clear of the
-     Dynamic Island, a title and close button that stay put while the sheet
-     scrolls, and ordinary buttons rather than an action sheet's stack. */
+  /* Page sheets, for the editors and Settings: taller, clear of the Dynamic
+     Island, a title and close button that stay put while the sheet scrolls,
+     and ordinary buttons rather than an action sheet's stack. */
   .sheet.page .sheet-in{padding-top:0;max-height:calc(100dvh - env(safe-area-inset-top,0px) - 8px)}
   .sheet-head{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--s3);
-    padding:var(--s4) 0 var(--s2);background:#fbf6f2}
+    padding:var(--s4) 0 var(--s2);background:var(--bg)}
   .sheet .sheet-head h2{margin:0}
   .sheet-x{flex:none;width:44px;height:44px;margin-right:-6px;padding:0;border:0;background:none;cursor:pointer;
-    display:grid;place-items:center;color:var(--ink)}
-  .sheet-x i{display:grid;place-items:center;width:34px;height:34px;border-radius:999px;background:rgba(15,20,40,.08)}
+    display:grid;place-items:center;color:var(--ink);border-radius:50%}
+  .sheet-x i{display:grid;place-items:center;width:34px;height:34px;border-radius:999px;background:var(--surface-3)}
   .sheet-x svg{width:14px;height:14px;fill:currentColor;display:block}
-  .sheet-x:active i{background:rgba(15,20,40,.16)}
+  .sheet-x:active i{background:var(--grey-2)}
+  @media (hover:hover){.sheet-x:hover i{background:var(--grey-2)}}
   .sheet.page .btns{flex-direction:row;align-items:center;margin-top:0}
   .sheet.page .btn{min-height:44px;font-size:var(--t-subhead)}
   .sheet.page .btns.stack{flex-direction:column;align-items:stretch;margin-top:var(--s2)}
   .sheet.page .btns.stack .btn{min-height:50px;font-size:var(--t-callout)}
+  @media (min-width:768px) and (min-height:600px){
+    .sheet{margin:auto}
+    .sheet-in,.sheet.page .sheet-in{border-radius:20px;max-height:min(86vh,820px);padding-bottom:var(--s5)}
+    .sheet[open] .sheet-in{animation-name:sheet-pop}
+    .sheet.closing .sheet-in{animation-name:sheet-drop}
+    @keyframes sheet-pop{from{opacity:0;transform:translateY(12px) scale(.98)}}
+    @keyframes sheet-drop{to{opacity:0;transform:translateY(8px) scale(.98)}}
+  }
   /* Settings as grouped cards, like the iOS Settings app. */
-  .set-card{margin-top:var(--s3);padding:var(--s4);border-radius:var(--radius-sm);background:#fff;box-shadow:0 1px 2px rgba(15,20,40,.08)}
+  .set-card{margin-top:var(--s3);padding:var(--s4);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow-1)}
   .set-card h3{margin:0;font-size:var(--t-callout);font-weight:var(--w-semibold)}
-  .set-foot{margin:var(--s4) var(--s1) 0}
+  .set-foot{margin:var(--s4) 2px 0}
   /* Reminders: a switch for each kind, as in the iOS Settings app. The whole
      row is the switch's label, so a tap anywhere on it flips it. */
   .sw-row{display:flex;align-items:center;gap:var(--s3);min-height:52px;margin:0;padding:6px 0;cursor:pointer;
@@ -572,10 +660,10 @@
   .sw-row small{display:block;margin-top:1px;font-size:var(--t-footnote);font-weight:var(--w-regular);line-height:var(--lh-tight);color:var(--ink-2)}
   .sw-row+.sw-row,.rem-sub{border-top:1px solid var(--line)}
   .sw{-webkit-appearance:none;appearance:none;flex:none;position:relative;width:51px;min-width:51px;height:31px;margin:0;padding:0;
-    border:0;border-radius:99px;background:rgba(15,20,40,.14);cursor:pointer;transition:background-color .2s ease}
+    border:0;border-radius:99px;background:var(--line-2);cursor:pointer;transition:background-color var(--d-2) ease}
   .sw::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;
-    box-shadow:0 3px 8px rgba(0,0,0,.15),0 1px 1px rgba(0,0,0,.16);transition:transform .22s cubic-bezier(.3,1.3,.5,1)}
-  .sw:checked{background:var(--tint)}
+    box-shadow:0 2px 6px rgba(0,0,0,.14),0 1px 1px rgba(0,0,0,.12);transition:transform var(--d-2) var(--ease)}
+  .sw:checked{background:var(--done)}
   .sw:checked::after{transform:translateX(20px)}
   .rem-pick{margin-top:var(--s2)}
   .rem-sub{margin-top:var(--s3)}
@@ -583,23 +671,23 @@
   /* Qadha from before tracking: a count per prayer, chipped away one at a time. */
   .qtext{padding:6px 0;min-width:0}
   .qrow .tag{white-space:nowrap;font-weight:var(--w-semibold)}
-  .qrow .ok{color:#14532d}
+  .qrow .ok{color:var(--sage-ink)}
   .q-oldhead{display:flex;justify-content:space-between;align-items:center;gap:var(--s2);border-top:1px solid var(--line)}
-  .q-edit{font:inherit;font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--tint-text);background:none;border:0;
+  .q-edit{font:inherit;font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--lav-ink);background:none;border:0;
     min-height:44px;padding:0 var(--s4);cursor:pointer;border-radius:10px}
   .q-prog{padding:var(--s3) var(--s4) 0;border-top:1px solid var(--line)}
-  .q-bar{height:8px;border-radius:99px;background:rgba(15,20,40,.08);overflow:hidden}
-  .q-bar i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#4ade80,#15803d);transition:width .5s ease}
+  .q-bar{height:8px;border-radius:99px;background:var(--surface-3);overflow:hidden}
+  .q-bar i{display:block;height:100%;width:0;border-radius:inherit;background:var(--done);transition:width .5s var(--ease)}
   .q-prog p{margin:6px 0 0;font-size:var(--t-footnote);font-weight:var(--w-medium);color:var(--ink-2)}
   .q-oldacts{padding:var(--s3) var(--s4) 0}
-  .o-est{margin-top:var(--s4);padding:var(--s3);border-radius:var(--radius-sm);background:rgba(15,20,40,.05)}
+  .o-est{margin-top:var(--s4);padding:var(--s3);border-radius:var(--radius-sm);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
   .o-estrow{display:grid;grid-template-columns:5em 1fr auto;gap:var(--s2);align-items:center}
   .o-rows{margin-top:var(--s4);display:grid;gap:var(--s2)}
   .o-row{display:grid;grid-template-columns:1fr 44px 5.5em 44px;gap:var(--s2);align-items:center}
   .o-name{font-size:var(--t-callout);font-weight:var(--w-semibold)}
-  .o-step{font:inherit;font-size:var(--t-title3);font-weight:var(--w-semibold);width:44px;height:44px;border-radius:14px;border:0;
-    background:rgba(15,20,40,.07);color:var(--ink);cursor:pointer;display:grid;place-items:center}
-  .o-step:active{background:rgba(15,20,40,.14)}
+  .o-step{font:inherit;font-size:var(--t-title3);font-weight:var(--w-semibold);width:44px;height:44px;border-radius:var(--radius-sm);border:0;
+    background:var(--surface-3);color:var(--ink);cursor:pointer;display:grid;place-items:center}
+  .o-step:active{background:var(--grey-2)}
   .o-row input{text-align:center;padding:10px 6px}
   .o-total{margin:var(--s3) 0 0;font-size:var(--t-subhead);font-weight:var(--w-semibold)}
   body.big-type .o-row{grid-template-columns:44px 1fr 44px}
@@ -607,167 +695,165 @@
   body.big-type .o-estrow{grid-template-columns:1fr 1fr}
   body.big-type .o-estrow .btn{grid-column:1 / -1}
 
-
   /* ---------------- welcome ---------------- */
-  .welcome{position:fixed;inset:0;z-index:70;overflow-y:auto;overscroll-behavior:contain;color:var(--ink);
-    background:radial-gradient(85% 50% at 0% 0%,#ffc56b,transparent 70%),radial-gradient(95% 60% at 100% 100%,#ff7f9d,transparent 72%),
-      radial-gradient(70% 40% at 100% 30%,#ffb08a,transparent 70%),#fdf3ea;
+  .welcome{position:fixed;inset:0;z-index:70;overflow-y:auto;overscroll-behavior:contain;color:var(--ink);background:var(--bg);
     padding:calc(env(safe-area-inset-top,0px) + 20px) max(24px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 20px) max(24px,env(safe-area-inset-left,0px))}
-  .welcome::before{position:fixed}
   .wl-step{position:relative;max-width:500px;min-height:100%;margin:0 auto;display:flex;flex-direction:column}
+  .wl-step.in{animation:swap-in var(--d-3) var(--ease)}
   .wl-top{display:flex;justify-content:space-between;align-items:center;min-height:44px}
-  .wl-brand{font-family:var(--serif);font-weight:var(--w-bold);font-size:var(--t-callout)}
+  .wl-brand{display:inline-flex;align-items:center;gap:8px;font-family:var(--serif);font-weight:var(--w-bold);font-size:var(--t-callout)}
+  .wl-brand::before{content:"";width:22px;height:22px;border-radius:7px;background:var(--lav);box-shadow:inset 0 0 0 1.5px var(--lav-2)}
   .wl-h{margin:var(--s4) 0 0;font-family:var(--serif);font-size:clamp(2.3rem,10.5vw,3.2rem);font-weight:var(--w-bold);line-height:1.02;letter-spacing:-.02em}
-  .wl-p{margin:var(--s3) 0 0;max-width:32ch;font-size:var(--t-callout);line-height:1.5;color:#3a3235}
+  .wl-p{margin:var(--s3) 0 0;max-width:34ch;font-size:var(--t-callout);line-height:1.5;color:var(--ink-2)}
   .wl-art{margin-top:auto;padding-top:var(--s3)}
-  .wl-art svg{width:100%;max-width:420px;height:auto;display:block;margin:0 auto}
+  .wl-art svg{width:100%;max-width:400px;height:auto;display:block;margin:0 auto}
   .wl-acts{display:grid;gap:var(--s2);margin-top:var(--s4)}
-  .wl-acts .btn{min-height:54px;font-size:var(--t-callout)}
-  .wl-acts .btn:not(.prominent){background:rgba(255,255,255,.6)}
-  .wl-k{margin:var(--s4) 0 0;font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--tint-text)}
+  .wl-acts .btn{min-height:52px;font-size:var(--t-callout)}
+  .wl-acts .btn:not(.prominent){background:var(--surface);box-shadow:inset 0 0 0 1px var(--line-2)}
+  @media (hover:hover){.wl-acts .btn:not(.prominent):hover{background:var(--surface-2)}}
+  .wl-k{margin:var(--s4) 0 0;font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--lav-ink)}
   .wl-h2{margin:var(--s1) 0 0;font-family:var(--serif);font-size:clamp(1.9rem,8vw,2.4rem);font-weight:var(--w-bold);line-height:1.08;letter-spacing:-.015em}
-  .wl-card{margin-top:var(--s4);padding:var(--s4);border-radius:var(--radius);background:rgba(255,255,255,.78);
-    box-shadow:0 16px 36px -24px rgba(120,40,30,.45);display:grid;gap:var(--s3)}
+  .wl-card{margin-top:var(--s4);padding:var(--s4);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow-1);display:grid;gap:var(--s3)}
   .wl-card .note{margin:0}
   .wl-dots{display:flex;justify-content:center;gap:6px;padding-top:var(--s4)}
-  .wl-dots i{width:7px;height:7px;border-radius:4px;background:rgba(80,40,40,.22);transition:width .25s ease,background-color .25s ease}
-  .wl-dots i.on{width:20px;background:var(--tint)}
+  .wl-dots i{width:7px;height:7px;border-radius:4px;background:var(--line-2);transition:width var(--d-3) var(--ease),background-color var(--d-3) ease}
+  .wl-dots i.on{width:20px;background:var(--ink)}
   .starter{display:grid;gap:8px}
-  .st-item{display:grid;grid-template-columns:minmax(0,1fr) 28px;gap:var(--s3);align-items:center;width:100%;min-height:58px;
-    padding:10px 14px;border:0;border-radius:18px;font:inherit;color:var(--ink);text-align:left;cursor:pointer;
-    background:hsl(var(--h) 90% 91%);box-shadow:inset 0 0 0 1px hsl(var(--h) 50% 76% / .6)}
+  .st-item{display:grid;grid-template-columns:4px minmax(0,1fr) 28px;gap:var(--s3);align-items:center;width:100%;min-height:58px;
+    padding:10px 14px 10px 10px;border:0;border-radius:var(--radius-sm);font:inherit;color:var(--ink);text-align:left;cursor:pointer;
+    background:var(--surface);box-shadow:var(--shadow-1)}
+  .st-item::before{content:"";align-self:stretch;border-radius:4px;background:var(--t-2)}
   .st-item b{display:block;font-size:var(--t-callout)}
   .st-item small{display:block;font-size:var(--t-footnote);color:var(--ink-2)}
-  .st-item i{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.6);
-    box-shadow:inset 0 0 0 2px hsl(var(--h) 30% 40% / .45)}
-  .st-item i svg{width:15px;height:15px;fill:none;stroke:#fff;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;opacity:0}
-  .st-item[aria-pressed="true"] i{background:var(--grad);box-shadow:none}
+  .st-item i{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--surface);box-shadow:inset 0 0 0 1.75px var(--line-2);
+    transition:background-color var(--d-2) ease,box-shadow var(--d-2) ease}
+  .st-item i svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity var(--d-2) ease}
+  .st-item[aria-pressed="true"] i{background:var(--done);box-shadow:none}
   .st-item[aria-pressed="true"] i svg{opacity:1}
-  .st-item[aria-pressed="false"]{background:rgba(255,255,255,.55);box-shadow:inset 0 0 0 1px rgba(80,40,40,.1)}
+  .st-item[aria-pressed="false"]{background:transparent;box-shadow:inset 0 0 0 1px var(--line-2)}
+  .st-item[aria-pressed="false"]::before{opacity:.4}
 
-  /* ---------------- floating tab bar (Liquid Glass) ---------------- */
-  /* The lens's place in tabs (--i), how much it magnifies (--mag) and its
-     stretch (--lx, --ly) are registered so they glide. The lens, the copy of
-     the tabs inside it and the mask over the real tabs all move off them. */
-  @property --i{syntax:'<number>';inherits:true;initial-value:0}
-  @property --mag{syntax:'<number>';inherits:true;initial-value:1}
-  @property --lx{syntax:'<number>';inherits:true;initial-value:1}
-  @property --ly{syntax:'<number>';inherits:true;initial-value:1}
-  .tabbar{
-    --n:5;
-    position:fixed;z-index:30;left:max(16px,env(safe-area-inset-left,0px));
-    right:max(16px,env(safe-area-inset-right,0px));
-    bottom:calc(env(safe-area-inset-bottom,0px) + 10px);
-    max-width:520px;margin:0 auto;height:64px;border-radius:999px;padding:6px;
-    display:grid;grid-template-columns:repeat(var(--n),1fr);
-    touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
-    transition:--i .5s cubic-bezier(.34,1.45,.5,1),--mag .3s ease,
-      --lx .34s cubic-bezier(.3,1.5,.5,1),--ly .34s cubic-bezier(.3,1.5,.5,1);
-  }
-  .tabbar.dragging{transition:none}
-  .lens{
-    position:absolute;top:6px;bottom:6px;left:6px;width:calc((100% - 12px) / var(--n));border-radius:999px;
-    overflow:hidden;pointer-events:none;
-    background:rgba(255,255,255,.72);box-shadow:var(--rim),0 4px 14px -4px rgba(8,10,40,.35);
-    transform:translateX(calc(var(--i) * 100%)) scale(var(--lx),var(--ly));
-    transition:background-color .2s ease,box-shadow .2s ease;
-  }
-  .tabbar button{
-    position:relative;z-index:1;border:0;background:transparent;cursor:pointer;font:inherit;
-    font-size:var(--t-tab);font-weight:var(--w-semibold);color:var(--ink);display:grid;place-items:center;gap:1px;
-    padding:4px 2px;border-radius:999px;
-  }
-  .tabbar svg{width:clamp(22px,1.4rem,28px);height:clamp(22px,1.4rem,28px);fill:currentColor;display:block}
-  .tabbar button[aria-pressed="true"] svg{color:var(--tint)}
-  /* Picked up (a press on the selected tab, a drag along the bar, or a tap's
-     hop), the lens lifts above the tabs as clear glass. Safari has no
-     refraction, so a copy of the tabs inside it is scaled about its centre to
-     magnify, and the real tabs are masked out underneath. The copy undoes the
-     lens's own stretch (--sx, --sy), so the droplet can bulge while what it
-     shows stays evenly magnified. At rest the copy lines up exactly with the
-     tabs, so it can come and go without a jump. */
-  .mag{position:absolute;left:0;top:0;width:calc(var(--n) * 100%);height:100%;display:grid;grid-template-columns:repeat(var(--n),1fr);
-    transform-origin:0 0;opacity:0;--sx:calc(var(--mag) / var(--lx));--sy:calc(var(--mag) / var(--ly));
-    transform:translate(calc((1 - var(--sx) * (2 * var(--i) + 1)) * 50% / var(--n)),calc((1 - var(--sy)) * 50%)) scale(var(--sx),var(--sy))}
-  .mag>span{display:grid;place-items:center;gap:1px;padding:4px 2px;font-size:var(--t-tab);font-weight:var(--w-semibold);color:var(--ink)}
-  .mag>.on svg{color:var(--tint)}
-  .lens::after{content:"";position:absolute;inset:0;border-radius:inherit;opacity:0;transition:opacity .2s ease;
-    background:radial-gradient(130% 90% at 28% 0%,rgba(255,255,255,.6),rgba(255,255,255,0) 58%),
-      radial-gradient(90% 70% at 78% 112%,rgba(255,255,255,.4),rgba(255,255,255,0) 62%)}
-  .tabbar.lifted .lens{z-index:2;background:rgba(255,255,255,.2);box-shadow:var(--rim),0 12px 26px -8px rgba(8,10,40,.45)}
-  .tabbar.lifted .lens::after,.tabbar.lifted .mag{opacity:1}
-  .tabbar.lifted button{
-    --hl:calc(var(--i) - var(--j) + .5 - var(--lx) * .46);
-    --hr:calc(var(--i) - var(--j) + .5 + var(--lx) * .46);
-    -webkit-mask-image:linear-gradient(90deg,#000 calc((var(--hl) - .08) * 100%),transparent calc((var(--hl) + .08) * 100%),
-      transparent calc((var(--hr) - .08) * 100%),#000 calc((var(--hr) + .08) * 100%));
-            mask-image:linear-gradient(90deg,#000 calc((var(--hl) - .08) * 100%),transparent calc((var(--hl) + .08) * 100%),
-      transparent calc((var(--hr) - .08) * 100%),#000 calc((var(--hr) + .08) * 100%));
-  }
-  .tabbar.lifted button:active{transform:none}
+  /* ---------------- the Home menu ----------------
+     One floating Home button, bottom centre. Tapped, the pages fan out of it
+     into a half circle above, one after another, each a pastel circle with
+     its icon and name, and stay where they land. They fold back into Home in
+     reverse when one is picked, Home is tapped again, a tap lands anywhere
+     else, or Escape is pressed. The script works out the size of the circles
+     and the half circle's radius for the screen (--x, --y, --c, --w), so
+     nothing overlaps or runs off the edge. */
+  .fan{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);height:var(--home,60px);z-index:35;pointer-events:none;
+    --c:52px;--w:70px;--fl:12px;--n:6}
+  .fan-scrim{position:fixed;inset:0;background:var(--scrim);opacity:0;visibility:hidden;
+    transition:opacity var(--d-3) var(--ease-in),visibility 0s linear var(--d-3)}
+  .fan.open .fan-scrim{opacity:1;visibility:visible;pointer-events:auto;transition:opacity var(--d-3) var(--ease),visibility 0s}
+  .home{position:absolute;left:50%;top:0;z-index:2;width:var(--home,60px);height:var(--home,60px);margin-left:calc(var(--home,60px) / -2);
+    padding:0;border:0;border-radius:50%;cursor:pointer;pointer-events:auto;display:grid;place-items:center;
+    background:var(--lav);color:var(--lav-ink);box-shadow:var(--shadow-2);transition:transform var(--d-1) var(--ease),background-color var(--d-2) ease}
+  .home svg{grid-area:1 / 1;width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;
+    transition:transform var(--d-3) var(--ease),opacity var(--d-2) ease}
+  .home .h-x{opacity:0;transform:rotate(-90deg) scale(.6)}
+  .fan.open .home .h-home{opacity:0;transform:rotate(90deg) scale(.6)}
+  .fan.open .home .h-x{opacity:1;transform:none}
+  .home:active{transform:scale(.94)}
+  @media (hover:hover){.home:hover{background:#d2cbf5}}
+  .home.alert::after{top:6px;right:6px}
+  .fan-list{position:absolute;left:50%;top:50%;z-index:1;width:0;height:0;margin:0;padding:0;list-style:none}
+  .fan-item{position:absolute;left:calc(var(--w) / -2);top:calc(var(--c) / -2);width:var(--w);padding:0;border:0;background:none;
+    font:inherit;color:var(--ink);cursor:pointer;display:grid;justify-items:center;gap:4px;border-radius:14px;
+    opacity:0;visibility:hidden;transform:translate(0,var(--rise,0px)) scale(.3);
+    transition:transform var(--d-2) var(--ease-in) calc((var(--n) - 1 - var(--k,0)) * 22ms),
+      opacity var(--d-2) ease calc((var(--n) - 1 - var(--k,0)) * 22ms),
+      visibility 0s linear calc(var(--d-2) + var(--n) * 22ms)}
+  .fan.open .fan-item{opacity:1;visibility:visible;pointer-events:auto;transform:translate(var(--x),var(--y)) scale(1);
+    transition:transform var(--d-3) var(--ease) calc(var(--k,0) * 34ms),opacity var(--d-2) ease calc(var(--k,0) * 34ms),visibility 0s}
+  .fi-c{position:relative;width:var(--c);height:var(--c);border-radius:50%;display:grid;place-items:center;background:var(--t-bg);color:var(--t-ink);
+    box-shadow:var(--shadow-1);transition:transform var(--d-1) var(--ease),box-shadow var(--d-2) ease}
+  .fi-c svg{width:calc(var(--c) * .44);height:calc(var(--c) * .44);fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .fi-l{max-width:100%;font-size:var(--fl);font-weight:var(--w-semibold);line-height:1.25;letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fan-item:active .fi-c{transform:scale(.92)}
+  @media (hover:hover){.fan-item:hover .fi-c{box-shadow:0 0 0 2px var(--t-2),var(--shadow-1)}}
+  .fan-item[aria-current="page"] .fi-c{box-shadow:0 0 0 2.5px var(--ink),var(--shadow-1)}
+  .fan-item[aria-current="page"] .fi-l{font-weight:var(--w-bold)}
+  .fan-item:focus-visible{outline:none}
+  .fan-item:focus-visible .fi-c{outline:2.5px solid var(--focus);outline-offset:3px}
 
   /* ---------------- focus mode ---------------- */
   .focus{
-    position:fixed;inset:0;z-index:40;display:grid;place-items:center;text-align:center;color:#fff;
-    /* Apple's 35% dimming figure is for glass over bright media. What blurs
-       behind this overlay is mostly the white material cards, so it needs
-       far more: at .62 white text measures 6:1 even over the cards. */
-    background:rgba(10,12,30,.62);
-    -webkit-backdrop-filter:blur(40px) saturate(1.5);backdrop-filter:blur(40px) saturate(1.5);
+    position:fixed;inset:0;z-index:40;display:grid;place-items:center;text-align:center;color:#fff;background:#2c3038;
     padding:calc(env(safe-area-inset-top,0px) + 24px) max(20px,env(safe-area-inset-right,0px))
             calc(env(safe-area-inset-bottom,0px) + 24px) max(20px,env(safe-area-inset-left,0px));
-    animation:fade .35s ease;
+    animation:fade-in var(--d-3) var(--ease);
   }
-  @keyframes fade{from{opacity:0}}
   .focus-body{max-width:440px;width:100%}
-  .focus .label{color:rgba(255,255,255,.85)}
+  .focus .label{color:rgba(255,255,255,.82)}
   .focus-title{margin:var(--s2) 0 0;font-size:var(--t-title1);font-weight:var(--w-bold);letter-spacing:var(--tr-display);line-height:var(--lh-title)}
-  .focus-clock{margin:var(--s4) 0 0;font-weight:var(--w-semibold);letter-spacing:-.02em;
-    font-size:clamp(4rem,22vw,7rem);line-height:1;text-shadow:0 4px 40px rgba(0,0,0,.25)}
-  .focus-sub{margin:var(--s2) 0 0;font-size:var(--t-subhead);font-weight:var(--w-medium);opacity:.9}
+  .focus-clock{margin:var(--s4) 0 0;font-weight:var(--w-semibold);letter-spacing:-.02em;font-size:clamp(4rem,22vw,7rem);line-height:1}
+  .focus-sub{margin:var(--s2) 0 0;font-size:var(--t-subhead);font-weight:var(--w-medium);color:rgba(255,255,255,.88)}
   .focus-rule{margin:var(--s6) auto 0;max-width:30ch;min-height:3.2em;font-size:var(--t-callout);
     font-weight:var(--w-medium);line-height:1.4;transition:opacity .5s ease}
   .focus-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s5)}
-  .focus .btn.glassbtn{background:rgba(255,255,255,.22);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
-  .focus-lock{margin:var(--s4) 0 0;font-size:var(--t-caption);font-weight:var(--w-medium);opacity:.8}
+  .focus .btn.prominent{background:var(--lav);color:var(--ink)}
+  .focus .btn.soft{background:transparent;color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.55)}
+  @media (hover:hover){
+    .focus .btn.prominent:not(:disabled):hover{background:#cfc7f3}
+    .focus .btn.soft:not(:disabled):hover{background:rgba(255,255,255,.08)}
+  }
+  .focus-lock{margin:var(--s4) 0 0;font-size:var(--t-caption);font-weight:var(--w-medium);color:rgba(255,255,255,.8)}
 
-  /* ---------------- toast, viewer, confetti ---------------- */
+  /* ---------------- toast, viewer ---------------- */
   .toast{
     position:fixed;z-index:50;left:50%;top:calc(env(safe-area-inset-top,0px) + 14px);
-    transform:translateX(-50%);padding:12px 20px;border-radius:999px;font-weight:var(--w-semibold);
-    font-size:var(--t-subhead);color:var(--ink);animation:drop .5s cubic-bezier(.3,1.4,.5,1);
+    transform:translateX(-50%);padding:10px 18px;border-radius:999px;font-weight:var(--w-semibold);
+    font-size:var(--t-subhead);color:#fff;background:var(--ink);box-shadow:var(--shadow-2);animation:toast-in var(--d-3) var(--ease);
     /* One line while it fits, wrapping at large text sizes instead of running off screen. */
     width:max-content;max-width:calc(100vw - 32px);text-align:center;
     display:flex;align-items:center;justify-content:center;gap:var(--s3);
   }
-  /* A solid capsule, because tinted text on glass drops to 2.5:1 over the night sky.
-     The button stays 44px tall; only the capsule inside it is drawn. */
+  .toast.out{animation:toast-out var(--d-2) var(--ease-in) forwards}
+  @keyframes toast-in{from{transform:translate(-50%,-12px);opacity:0}}
+  @keyframes toast-out{to{transform:translate(-50%,-8px);opacity:0}}
+  /* The button stays 44px tall; only the capsule inside it is drawn. */
   .toast-undo{flex:none;font:inherit;background:none;border:0;cursor:pointer;padding:0;
-    min-height:44px;margin:-12px -12px -12px 0;display:flex;align-items:center}
-  .toast-undo span{padding:6px 14px;border-radius:999px;background:var(--tint);color:var(--tint-ink);font-size:var(--t-footnote)}
-  .toast-undo:active span{filter:brightness(.92)}
-  @keyframes drop{from{transform:translate(-50%,-40px);opacity:0}}
-  .viewer{position:fixed;inset:0;z-index:60;background:rgba(10,10,14,.92);display:grid;place-items:center;
+    min-height:44px;margin:-12px -10px -12px 0;display:flex;align-items:center;border-radius:999px}
+  .toast-undo span{padding:6px 14px;border-radius:999px;background:var(--lav);color:var(--ink);font-size:var(--t-footnote)}
+  .toast-undo:active span{background:var(--lav-2)}
+  .viewer{position:fixed;inset:0;z-index:60;background:rgba(30,32,38,.94);display:grid;place-items:center;animation:fade-in var(--d-2) ease;
     padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 16px)}
-  .viewer img{max-width:100%;max-height:100%;border-radius:16px;display:block}
+  .viewer img{max-width:100%;max-height:100%;border-radius:var(--radius);display:block}
   .viewer .close{position:absolute;top:calc(env(safe-area-inset-top,0px) + 8px);right:12px;width:44px;height:44px;
     border:0;border-radius:99px;background:rgba(255,255,255,.18);color:#fff;font-size:22px;cursor:pointer}
-  .confetti{position:fixed;inset:0;z-index:55;pointer-events:none}
 
-  /* Backup: a status line in Your data, a nudge on Today once a week has passed. */
+  /* Backup: a status line in Settings, a nudge on Today once a week has passed. */
   .b-status{margin:4px 0 var(--s2);font-size:var(--t-footnote);font-weight:var(--w-medium);color:var(--ink-2)}
   .b-remind{padding:var(--s4)}
   .br-text{margin:4px 0 var(--s3);font-size:var(--t-subhead);color:var(--ink-2)}
   .b-more{margin-top:var(--s2)}
   .b-more summary{list-style:none;cursor:pointer;min-height:44px;display:flex;align-items:center;
-    font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--tint-text);border-radius:10px}
+    font-size:var(--t-footnote);font-weight:var(--w-semibold);color:var(--lav-ink);border-radius:10px}
   .b-more summary::-webkit-details-marker{display:none}
   .confirm.stack p{flex-basis:100%}  /* a long question gets its own line, both answers under it */
 
   .install{display:flex;gap:var(--s3);align-items:flex-start;padding:var(--s3) var(--s4);font-size:var(--t-footnote)}
-  .install button{margin:-6px -10px -6px auto;flex:0 0 auto;width:44px;height:44px;border:0;border-radius:12px;background:transparent;
+  .install button{margin:-6px -10px -6px auto;flex:0 0 auto;width:44px;height:44px;border:0;border-radius:var(--radius-sm);background:transparent;
     font-size:var(--t-title3);color:var(--ink-2);cursor:pointer}
 
+  /* ---------------- tablets and computers ---------------- */
+  @media (min-width:768px){
+    .app{padding-top:calc(env(safe-area-inset-top,0px) + 32px);padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(28px,env(safe-area-inset-right,0px))}
+    .hero{margin-bottom:var(--s5)}
+  }
+  /* Wide enough for two columns: Today's timetable beside what's happening
+     now, and the week beside its eight weeks of history. */
+  @media (min-width:1024px){
+    .app{max-width:1080px}
+    #v-today:not(.hide),#v-week:not(.hide){display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,360px);column-gap:28px;align-items:start}
+    #v-today>#strip,#v-today>#streak,#v-week>.daysel,#v-week>.dayhead{grid-column:1 / -1}
+    #v-today>.t-side{grid-column:2;grid-row:3;position:sticky;top:24px}
+    #v-today>.t-main{grid-column:1;grid-row:3}
+    #v-week>#w-list{grid-column:1;grid-row:3}
+    #v-week>.heat-wrap{grid-column:2;grid-row:3;margin-top:0;position:sticky;top:24px}
+    #v-due,#v-solat,#v-edit{max-width:760px}
+  }
 
   /* Big text: rows restack so names keep their own line. */
   body.big-type .item{grid-template-columns:4px 1fr auto;row-gap:var(--s1)}
@@ -777,40 +863,45 @@
   body.big-type .item .tick{grid-column:3;grid-row:1 / span 2}
   body.big-type .two{grid-template-columns:1fr}
   body.big-type .strip{grid-template-columns:repeat(4,minmax(0,1fr))}
-  body.big-type .daysel{grid-template-columns:repeat(4,minmax(0,1fr));border-radius:var(--radius)}
+  body.big-type .daysel{grid-template-columns:repeat(4,minmax(0,1fr))}
   body.big-type .dayrow{grid-template-columns:repeat(4,minmax(0,1fr))}
   body.big-type .pchips{grid-template-columns:repeat(2,1fr)}
   body.big-type .pchip b{font-size:var(--t-footnote)}
   body.big-type .pchip span{font-size:var(--t-caption)}
   body.big-type .file{grid-template-columns:40px minmax(0,1fr)}
   body.big-type .file .btn,body.big-type .file .x{grid-column:2}
+  body.big-type .c-open,body.big-type .gapcard{grid-template-columns:minmax(0,1fr)}
+  body.big-type .c-when{display:flex;gap:6px}
+  body.big-type .due-add{flex-basis:100%}
+  body.big-type .seg{grid-auto-flow:row;grid-template-columns:1fr 1fr}
+  body.big-type .tk-open{grid-template-columns:36px minmax(0,1fr)}
+  body.big-type .tk-open .k-ic{grid-row:1 / span 2;align-self:start}
+  body.big-type .tk-open .tk-side{grid-column:2;display:flex}
+  body.big-type .nextup{grid-template-columns:1fr}
+  body.big-type .duerow{grid-template-columns:36px minmax(0,1fr)}
+  body.big-type .duerow .tk-side{grid-column:2;display:flex;gap:8px}
 
-  /* Increase Contrast: solid buttons with a drawn edge. Last, so it beats
-     every button rule above. */
+  /* Increase Contrast: darker secondary text and a drawn edge on every
+     surface and button. Last, so it beats every rule above. */
   @media (prefers-contrast:more){
-    .btn:not(.prominent):not(.dark),.chip-btn:not([aria-pressed="true"]),.dayrow button:not([aria-pressed="true"]),.o-step,.hero-btn:not(.add),.sheet-x i,.idea{
-      background:#fff;box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.55)}
-    .card,.gapcard,.task{box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.55)}
-    .focus .btn.glassbtn{background:rgba(255,255,255,.22);box-shadow:inset 0 0 0 1.5px #fff}
+    :root{--ink-2:#43464d;--line:#b9b4ab;--line-2:#86827b;--scrim:var(--bg)}
+    .material,.card,.tklist,.set-card,.wl-card,.st-item,.fi-c,.home{box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.55)}
+    .btn:not(.prominent):not(.dark),.chip-btn:not([aria-pressed="true"]),.dayrow button:not([aria-pressed="true"]),.o-step,.hero-btn:not(.add),.sheet-x i,.idea,.due-add,.seg button[aria-pressed="true"]{
+      box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.55)}
+    .fan-item[aria-current="page"] .fi-c{box-shadow:0 0 0 3px var(--ink)}
+    .focus .btn.soft{box-shadow:inset 0 0 0 1.5px #fff}
     .sw:not(:checked){box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.55)}
   }
+  @media (prefers-reduced-transparency:reduce){:root{--scrim:var(--bg)}}
 
+  /* Reduce Motion: everything still changes, it just doesn't move. */
   @media (prefers-reduced-motion:reduce){
-    .blob,.focus,.toast,.sheet[open] .sheet-in{animation:none}
-    :root{transition:none}
-    .tabbar,.lens,.strip .arc,.nowring .arc,.item,.card,.focus-rule,.about .chev,.sw,.sw::after,.wl-dots i{transition:none}
-    .draw .swipe,.draw .gapcard,.draw.cards>.swipe,.draw.cards>.gapcard,.card.pop .c-tick i,.card.pop .c-tick svg{animation:none}
-    .btn:active,.tabbar button:active,.pchip:active,.hero-btn:active,.idea:active,.st-item:active{transform:none}
+    *,*::before,*::after{animation-duration:1ms!important;animation-delay:0s!important;transition-duration:1ms!important;transition-delay:0s!important}
+    .btn:active,.pchip:active,.hero-btn:active,.idea:active,.st-item:active,.due-add:active,.home:active,.fan-item:active .fi-c{transform:none}
   }
 </style>
 </head>
 <body>
-<div class="sky" aria-hidden="true"><i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i></div>
-<!-- Shared by every ring: coral into raspberry. -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
-  <linearGradient id="arcgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7a59"/><stop offset="1" stop-color="#c42a5c"/></linearGradient>
-</defs></svg>
-
 <div class="app">
   <header class="hero">
     <div class="hero-row">
@@ -819,8 +910,8 @@
         <h1 id="view-title">Today</h1>
       </div>
       <div class="hero-acts" id="hero-acts">
-        <button type="button" class="hero-btn" id="set-open" aria-label="Settings" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="3.4" stroke-dasharray="3.1 3.655" transform="rotate(-10.3 12 12)"/><path fill-rule="evenodd" d="M12 4.6a7.4 7.4 0 1 1 0 14.8a7.4 7.4 0 0 1 0-14.8Zm0 4.4a3 3 0 1 0 0 6a3 3 0 0 0 0-6Z"/></svg></button>
-        <button type="button" class="hero-btn add" id="e-add" aria-label="Add a block" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="10.8" y="4.5" width="2.4" height="15" rx="1.2"/><rect x="4.5" y="10.8" width="15" height="2.4" rx="1.2"/></svg></button>
+        <button type="button" class="hero-btn tip-below" id="set-open" aria-label="Settings" aria-haspopup="dialog" data-tip="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.11 4.95L10.65 2.39L13.35 2.39L13.89 4.95A7.3 7.3 0 0 1 15.65 5.68L17.84 4.25L19.75 6.16L18.32 8.35A7.3 7.3 0 0 1 19.05 10.11L21.61 10.65L21.61 13.35L19.05 13.89A7.3 7.3 0 0 1 18.32 15.65L19.75 17.84L17.84 19.75L15.65 18.32A7.3 7.3 0 0 1 13.89 19.05L13.35 21.61L10.65 21.61L10.11 19.05A7.3 7.3 0 0 1 8.35 18.32L6.16 19.75L4.25 17.84L5.68 15.65A7.3 7.3 0 0 1 4.95 13.89L2.39 13.35L2.39 10.65L4.95 10.11A7.3 7.3 0 0 1 5.68 8.35L4.25 6.16L6.16 4.25L8.35 5.68A7.3 7.3 0 0 1 10.11 4.95Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <button type="button" class="hero-btn add" id="e-add" aria-label="Add a block" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.5v13M5.5 12h13"/></svg><span>Add</span></button>
       </div>
     </div>
   </header>
@@ -830,6 +921,8 @@
     <div class="material strip" id="strip" role="group" aria-label="This week"></div>
     <p class="streak hide" id="streak"></p>
 
+    <!-- On a wide screen this sits beside the timetable. -->
+    <div class="t-side">
     <section class="material nowcard idle" id="nowcard" aria-label="Right now">
       <div class="now-top">
         <div>
@@ -848,13 +941,13 @@
       <p class="now-detail hide" id="now-detail"></p>
       <div class="now-actions">
         <button type="button" class="btn prominent hide" id="now-focus">Start focus</button>
-        <button type="button" class="btn glassbtn hide" id="now-done">Mark done</button>
+        <button type="button" class="btn soft hide" id="now-done">Mark done</button>
       </div>
       <p class="now-next hide" id="now-next"></p>
     </section>
 
     <section class="material duesoon hide" id="t-due" aria-labelledby="td-h">
-      <div class="due-head"><h2 id="td-h">Due soon</h2><button type="button" class="link" id="td-more">See all</button></div>
+      <div class="due-head"><h2 id="td-h">Coming up</h2><button type="button" class="link" id="td-more">See all</button></div>
       <div id="td-list"></div>
     </section>
 
@@ -878,12 +971,15 @@
         <button type="button" class="btn" id="br-later">Later</button>
       </div>
     </section>
+    </div>
 
-    <div id="t-list"></div>
+    <div class="t-main">
+      <div id="t-list"></div>
 
-    <div class="material install hide" id="install">
-      <span>Add Dayline to your home screen: tap <b>Share</b>, then <b>Add to Home Screen</b>. It then works with no signal.</span>
-      <button type="button" id="install-x" aria-label="Dismiss">&times;</button>
+      <div class="material install hide" id="install">
+        <span>Add Dayline to your home screen: tap <b>Share</b>, then <b>Add to Home Screen</b>. It then works with no signal.</span>
+        <button type="button" id="install-x" aria-label="Dismiss">&times;</button>
+      </div>
     </div>
   </section>
 
@@ -902,9 +998,18 @@
     </section>
   </section>
 
-  <!-- DUE: assignments and anything else with a deadline -->
+  <!-- DUE: assignments, exams and quizzes, anything with a date -->
   <section id="v-due" class="hide">
     <p class="streak" id="due-sum" style="margin-top:calc(-1 * var(--s2))"></p>
+    <div class="due-top hide" id="due-top">
+      <div class="due-adds">
+        <button type="button" class="due-add" data-kind="assignment" data-tone="blue" aria-haspopup="dialog" aria-label="Add an assignment"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.5v13M5.5 12h13"/></svg><span>Assignment</span></button>
+        <button type="button" class="due-add" data-kind="exam" data-tone="lav" aria-haspopup="dialog" aria-label="Add an exam"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.5v13M5.5 12h13"/></svg><span>Exam</span></button>
+        <button type="button" class="due-add" data-kind="quiz" data-tone="peach" aria-haspopup="dialog" aria-label="Add a quiz"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.5v13M5.5 12h13"/></svg><span>Quiz</span></button>
+      </div>
+      <div class="fchips" id="due-filter" role="group" aria-label="Show"></div>
+    </div>
+    <div id="d-next"></div>
     <div id="d-list"></div>
   </section>
 
@@ -988,13 +1093,22 @@
   </section>
 </div>
 
-<nav class="tabbar glass" aria-label="Sections">
-  <span class="lens" id="lens" aria-hidden="true"></span>
-  <button type="button" data-view="today" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14a3 3 0 0 1 3 3v1H2V7a3 3 0 0 1 3-3Zm2-3a1 1 0 0 1 1 1v2H6V2a1 1 0 0 1 1-1Zm10 0a1 1 0 0 1 1 1v2h-2V2a1 1 0 0 1 1-1Z"/><path d="M2 10h20v9a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-9Z"/></svg>Today</button>
-  <button type="button" data-view="week" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="4.5" height="16" rx="1.6"/><rect x="9.75" y="4" width="4.5" height="16" rx="1.6"/><rect x="16.5" y="4" width="4.5" height="16" rx="1.6"/></svg>Week</button>
-  <button type="button" data-view="due" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 2.2h6a1.2 1.2 0 0 1 1.2 1.2V4H18a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1.8v-.6A1.2 1.2 0 0 1 9 2.2Z"/><path d="M8.2 13.4l2.6 2.6 5-5.4" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Due</button>
-  <button type="button" data-view="solat" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.4.6h1.2V3h-1.2Z"/><path d="M12 2.6c.9 1.7 2.7 2.8 4.3 4 1.6 1.2 2.7 2.8 2.7 5v.4H5v-.4c0-2.2 1.1-3.8 2.7-5 1.6-1.2 3.4-2.3 4.3-4Z"/><path d="M4 13.4h16V21h-5.5v-3.2a2.5 2.5 0 0 0-5 0V21H4Z"/></svg>Solat</button>
-  <button type="button" data-view="edit" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.6" width="18" height="2.8" rx="1.4"/><circle cx="9" cy="7" r="3.1"/><rect x="3" y="15.6" width="18" height="2.8" rx="1.4"/><circle cx="15" cy="17" r="3.1"/></svg>Schedule</button>
+<!-- The Home menu: Home, and the pages that fan out above it. Home comes first,
+     so Tab goes from it into the pages. -->
+<nav class="fan" id="fan" aria-label="Pages">
+  <div class="fan-scrim" id="fan-scrim"></div>
+  <button type="button" class="home" id="home" aria-expanded="false" aria-controls="fan-list" aria-label="Menu" data-tip="Menu">
+    <svg class="h-home" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.6 12 4l8 6.6V19a1 1 0 0 1-1 1h-4.5v-5.2h-5V20H5a1 1 0 0 1-1-1Z"/></svg>
+    <svg class="h-x" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>
+  </button>
+  <ul class="fan-list" id="fan-list">
+    <li><button type="button" class="fan-item" data-view="today" data-tone="butter"><span class="fi-c"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.8h17M8 3.2v3.4M16 3.2v3.4"/><rect x="7.2" y="12.6" width="4.4" height="4.2" rx="1" fill="currentColor" stroke="none"/></svg></span><span class="fi-l">Today</span></button></li>
+    <li><button type="button" class="fan-item" data-view="week" data-tone="blue"><span class="fi-c"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="4.6" height="15" rx="1.6"/><rect x="9.7" y="4.5" width="4.6" height="15" rx="1.6"/><rect x="15.9" y="4.5" width="4.6" height="15" rx="1.6"/></svg></span><span class="fi-l">Week</span></button></li>
+    <li><button type="button" class="fan-item" data-view="due" data-tone="peach"><span class="fi-c"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4.5H7.5a2 2 0 0 0-2 2V19a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V6.5a2 2 0 0 0-2-2H15"/><rect x="9" y="3" width="6" height="3.2" rx="1.2"/><path d="M9 13.2l2.2 2.2 4-4.4"/></svg></span><span class="fi-l">Due</span></button></li>
+    <li><button type="button" class="fan-item" data-view="solat" data-tone="sage"><span class="fi-c"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8v2.1M7.2 11.2c0-3 2.2-4.4 4.8-6.3 2.6 1.9 4.8 3.3 4.8 6.3M5 20.5v-9.3h14v9.3M10 20.5v-3.3a2 2 0 0 1 4 0v3.3M3 20.5h18"/></svg></span><span class="fi-l">Solat</span></button></li>
+    <li><button type="button" class="fan-item" data-view="edit" data-tone="mint"><span class="fi-c"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6.5h10M9.5 12h10M9.5 17.5h10"/><circle cx="5" cy="6.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="5" cy="17.5" r="1.3" fill="currentColor" stroke="none"/></svg></span><span class="fi-l">Schedule</span></button></li>
+    <li><button type="button" class="fan-item" data-act="settings" data-tone="grey" aria-haspopup="dialog"><span class="fi-c"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.11 4.95L10.65 2.39L13.35 2.39L13.89 4.95A7.3 7.3 0 0 1 15.65 5.68L17.84 4.25L19.75 6.16L18.32 8.35A7.3 7.3 0 0 1 19.05 10.11L21.61 10.65L21.61 13.35L19.05 13.89A7.3 7.3 0 0 1 18.32 15.65L19.75 17.84L17.84 19.75L15.65 18.32A7.3 7.3 0 0 1 13.89 19.05L13.35 21.61L10.65 21.61L10.11 19.05A7.3 7.3 0 0 1 8.35 18.32L6.16 19.75L4.25 17.84L5.68 15.65A7.3 7.3 0 0 1 4.95 13.89L2.39 13.35L2.39 10.65L4.95 10.11A7.3 7.3 0 0 1 5.68 8.35L4.25 6.16L6.16 4.25L8.35 5.68A7.3 7.3 0 0 1 10.11 4.95Z"/><circle cx="12" cy="12" r="3"/></svg></span><span class="fi-l">Settings</span></button></li>
+  </ul>
 </nav>
 
 <div class="focus" id="focus" hidden role="dialog" aria-modal="true" aria-labelledby="f-title">
@@ -1006,7 +1120,7 @@
     <p class="focus-rule" id="f-rule"></p>
     <div class="focus-actions">
       <button type="button" class="btn prominent" id="f-done">Mark done</button>
-      <button type="button" class="btn glassbtn" id="f-exit">Leave focus</button>
+      <button type="button" class="btn soft" id="f-exit">Leave focus</button>
     </div>
     <p class="focus-lock" id="f-lock" hidden>The screen stays on while you focus.</p>
   </div>
@@ -1102,7 +1216,7 @@
   </div>
 </dialog>
 
-<!-- Adding or editing an assignment: the same sheet. -->
+<!-- Adding or editing an assignment, exam or quiz: the same sheet. -->
 <dialog class="sheet page" id="a-sheet" aria-labelledby="a-title">
   <div class="sheet-in">
     <div class="sheet-head">
@@ -1110,11 +1224,17 @@
       <button type="button" class="sheet-x" id="a-x" aria-label="Cancel"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 5 12 10.6 17.6 5 19 6.4 13.4 12 19 17.6 17.6 19 12 13.4 6.4 19 5 17.6 10.6 12 5 6.4Z"/></svg></i></button>
     </div>
     <form id="a-form" novalidate>
-      <div><label for="a-name">What's due</label><input type="text" id="a-name" maxlength="80" placeholder="Lab report 3" autocomplete="off"></div>
+      <div><p class="label" id="a-kind-label" style="margin-bottom:4px">This is</p>
+        <div class="seg" id="a-kind" role="group" aria-labelledby="a-kind-label">
+          <button type="button" data-kind="assignment" aria-pressed="true">Assignment</button>
+          <button type="button" data-kind="exam" aria-pressed="false">Exam</button>
+          <button type="button" data-kind="quiz" aria-pressed="false">Quiz</button>
+        </div></div>
+      <div><label for="a-name" id="a-name-l">What's due</label><input type="text" id="a-name" maxlength="80" placeholder="Lab report 3" autocomplete="off"></div>
       <div><label for="a-course">Course or subject</label><input type="text" id="a-course" maxlength="30" list="a-courses" placeholder="CS201" autocomplete="off"><datalist id="a-courses"></datalist></div>
       <div class="two">
-        <div><label for="a-date">Due date</label><input type="date" id="a-date"></div>
-        <div><label for="a-time">Time</label><input type="time" id="a-time" value="23:59" step="60"></div>
+        <div><label for="a-date" id="a-date-l">Due date</label><input type="date" id="a-date"></div>
+        <div><label for="a-time" id="a-time-l">Time</label><input type="time" id="a-time" value="23:59" step="60"></div>
       </div>
       <p class="err hide" id="a-err" role="alert"></p>
       <div><label for="a-notes">Notes</label><textarea id="a-notes" maxlength="500" placeholder="What's asked for, the word count, where to hand it in"></textarea></div>
@@ -1192,7 +1312,7 @@
       <p class="note" id="rem-note" style="margin:0 0 var(--s3)">Blocks, due dates and prayer times on your lock screen, even while Dayline is closed. Your own Supabase sends them, so they need Sync and a one-time setup in your project.</p>
       <div id="rem-opts" class="hide">
         <label class="sw-row"><span>Block starts<small>Not for a block you've already ticked</small></span><input type="checkbox" class="sw" role="switch" id="rem-blocks"></label>
-        <label class="sw-row"><span>Due dates<small>A day before, and an hour before, unless it's handed in</small></span><input type="checkbox" class="sw" role="switch" id="rem-due"></label>
+        <label class="sw-row"><span>Due dates, exams and quizzes<small>A day before, and an hour before, unless it's ticked off</small></span><input type="checkbox" class="sw" role="switch" id="rem-due"></label>
         <label class="sw-row rem-solat"><span>Prayer times<small>When each prayer's time starts, from JAKIM</small></span><input type="checkbox" class="sw" role="switch" id="rem-pray"></label>
         <label class="sw-row rem-solat"><span>Before a prayer runs out<small>30 minutes before its time ends, if it isn't ticked</small></span><input type="checkbox" class="sw" role="switch" id="rem-late"></label>
         <div class="two rem-pick">
@@ -1381,16 +1501,16 @@
 var DAYS=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 var LONG=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 var MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+// Each kind of block wears one of the pastel tones (data-tone in the CSS).
 var TYPES=[
-  {id:"study",name:"Focus",hue:"var(--h-study)"},
-  {id:"move",name:"Train",hue:"var(--h-move)"},
-  {id:"rest",name:"Rest",hue:"var(--h-rest)"},
-  {id:"social",name:"Social",hue:"var(--h-social)"},
-  {id:"chores",name:"Errands",hue:"var(--h-chores)"},
-  {id:"travel",name:"Travel",hue:"var(--h-travel)"},
-  {id:"work",name:"Work",hue:"var(--h-work)"}
+  {id:"study",name:"Focus",tone:"lav"},
+  {id:"move",name:"Train",tone:"sage"},
+  {id:"rest",name:"Rest",tone:"mint"},
+  {id:"social",name:"Social",tone:"butter"},
+  {id:"chores",name:"Errands",tone:"peach"},
+  {id:"travel",name:"Travel",tone:"rose"},
+  {id:"work",name:"Work",tone:"blue"}
 ];
-var HUES={study:266,work:172,move:138,rest:198,social:44,chores:352,travel:24};
 
 // Dayline starts with an empty timetable. These are only ever offered, never
 // added by themselves: as ideas for free time, at roughly the hour they suit.
@@ -1423,20 +1543,20 @@ var RULES=[
 
 // The pictures, drawn for Dayline: a man planning at a wall of notes for the
 // welcome and empty days, and a still life for each kind of block.
-var INK='fill="none" stroke="#1f1a1c" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"';
-var FLOOR='<ellipse cx="160" cy="152" rx="122" ry="9" fill="#1f1a1c" opacity=".07"/>';
+var INK='fill="none" stroke="#30343b" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"';
+var FLOOR='<ellipse cx="160" cy="152" rx="122" ry="9" fill="#30343b" opacity=".07"/>';
 var ART={
- plan:'<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"><g fill="none" stroke="#1f1a1c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'+
-  '<g transform="translate(78 64) rotate(-7)"><rect width="56" height="52" rx="3" fill="#fffaf2"/><path d="M7 42H49"/><rect x="11" y="26" width="8" height="16" fill="#ffe3a3"/><rect x="24" y="17" width="8" height="25" fill="#ff7a59"/><rect x="37" y="9" width="8" height="33" fill="#ffe3a3"/></g>'+
-  '<g transform="translate(148 22) rotate(-4)"><rect width="62" height="70" rx="3" fill="#fffaf2"/><rect x="9" y="11" width="10" height="10" rx="2" fill="#fffaf2"/><path d="M11.5 16l3 3 6-7" stroke="#d23c33"/><path d="M26 16H52"/><rect x="9" y="30" width="10" height="10" rx="2" fill="#fffaf2"/><path d="M11.5 35l3 3 6-7" stroke="#d23c33"/><path d="M26 35H50"/><rect x="9" y="49" width="10" height="10" rx="2" fill="#fffaf2"/><path d="M26 54H46"/></g>'+
-  '<g transform="translate(222 40) rotate(6)"><rect width="64" height="54" rx="3" fill="#fffaf2"/><path d="M10 8V44H56"/><path d="M15 37L26 27L34 32L48 15" stroke="#d23c33"/><path d="M41 15H48V22" stroke="#d23c33"/></g>'+
-  '<g transform="translate(168 106) rotate(3)"><rect width="58" height="56" rx="3" fill="#fffaf2"/><circle cx="29" cy="28" r="16" fill="#ffe3a3"/><path d="M29 28V12A16 16 0 0 1 44.6 24.4Z" fill="#ff7a59"/></g>'+
-  '<g transform="translate(236 106) rotate(-4)"><rect width="52" height="60" rx="3" fill="#fffaf2"/><path d="M9 14H43M9 24H43M9 34H37M9 44H28"/></g>'+
-  '<g transform="translate(214 186) rotate(5)"><rect width="62" height="54" rx="3" fill="#fffaf2"/><path d="M0 14H62" /><rect x=".5" y=".5" width="61" height="13" fill="#ff7a59" stroke="none"/><path d="M12 26h4M26 26h4M40 26h4M12 38h4M26 38h4M40 38h4" stroke-width="3"/><circle cx="28" cy="38" r="7" fill="none" stroke="#d23c33" stroke-width="2"/></g>'+
-  '</g><g fill="#ffb59b" opacity=".9"><rect x="171" y="16" width="18" height="7" rx="1.5" transform="rotate(-8 180 19)"/><rect x="246" y="35" width="18" height="7" rx="1.5" transform="rotate(10 255 38)"/><rect x="96" y="58" width="18" height="7" rx="1.5" transform="rotate(-12 105 61)"/><rect x="236" y="181" width="18" height="7" rx="1.5" transform="rotate(6 245 184)"/></g>'+
-  '<g stroke="#1f1a1c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none">'+
+ plan:'<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"><g fill="none" stroke="#30343b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'+
+  '<g transform="translate(78 64) rotate(-7)"><rect width="56" height="52" rx="3" fill="#fffdf9"/><path d="M7 42H49"/><rect x="11" y="26" width="8" height="16" fill="#f5edc9"/><rect x="24" y="17" width="8" height="25" fill="#eab08f"/><rect x="37" y="9" width="8" height="33" fill="#f5edc9"/></g>'+
+  '<g transform="translate(148 22) rotate(-4)"><rect width="62" height="70" rx="3" fill="#fffdf9"/><rect x="9" y="11" width="10" height="10" rx="2" fill="#fffdf9"/><path d="M11.5 16l3 3 6-7" stroke="#6a5cc2"/><path d="M26 16H52"/><rect x="9" y="30" width="10" height="10" rx="2" fill="#fffdf9"/><path d="M11.5 35l3 3 6-7" stroke="#6a5cc2"/><path d="M26 35H50"/><rect x="9" y="49" width="10" height="10" rx="2" fill="#fffdf9"/><path d="M26 54H46"/></g>'+
+  '<g transform="translate(222 40) rotate(6)"><rect width="64" height="54" rx="3" fill="#fffdf9"/><path d="M10 8V44H56"/><path d="M15 37L26 27L34 32L48 15" stroke="#6a5cc2"/><path d="M41 15H48V22" stroke="#6a5cc2"/></g>'+
+  '<g transform="translate(168 106) rotate(3)"><rect width="58" height="56" rx="3" fill="#fffdf9"/><circle cx="29" cy="28" r="16" fill="#f5edc9"/><path d="M29 28V12A16 16 0 0 1 44.6 24.4Z" fill="#eab08f"/></g>'+
+  '<g transform="translate(236 106) rotate(-4)"><rect width="52" height="60" rx="3" fill="#fffdf9"/><path d="M9 14H43M9 24H43M9 34H37M9 44H28"/></g>'+
+  '<g transform="translate(214 186) rotate(5)"><rect width="62" height="54" rx="3" fill="#fffdf9"/><path d="M0 14H62" /><rect x=".5" y=".5" width="61" height="13" fill="#eab08f" stroke="none"/><path d="M12 26h4M26 26h4M40 26h4M12 38h4M26 38h4M40 38h4" stroke-width="3"/><circle cx="28" cy="38" r="7" fill="none" stroke="#6a5cc2" stroke-width="2"/></g>'+
+  '</g><g fill="#f6ddcf" opacity=".9"><rect x="171" y="16" width="18" height="7" rx="1.5" transform="rotate(-8 180 19)"/><rect x="246" y="35" width="18" height="7" rx="1.5" transform="rotate(10 255 38)"/><rect x="96" y="58" width="18" height="7" rx="1.5" transform="rotate(-12 105 61)"/><rect x="236" y="181" width="18" height="7" rx="1.5" transform="rotate(6 245 184)"/></g>'+
+  '<g stroke="#30343b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none">'+
   '<path d="M197 204L190 160" stroke-width="21"/><path d="M197 204L190 160" stroke="#e8b08a" stroke-width="16"/>'+
-  '<circle cx="189" cy="152" r="10" fill="#e8b08a"/><rect x="185" y="127" width="8" height="21" rx="2.5" fill="#ff7a59" transform="rotate(14 189 138)"/>'+
+  '<circle cx="189" cy="152" r="10" fill="#e8b08a"/><rect x="185" y="127" width="8" height="21" rx="2.5" fill="#eab08f" transform="rotate(14 189 138)"/>'+
   '<path d="M163 242L197 204" stroke-width="28"/><path d="M163 242L197 204" stroke="#2f4a6b" stroke-width="22.5"/>'+
   '<path d="M72 246L36 274L58 296" stroke-width="27"/><path d="M72 246L36 274L58 296" stroke="#2f4a6b" stroke-width="21.5"/>'+
   '<circle cx="62" cy="294" r="9" fill="#e8b08a"/>'+
@@ -1448,49 +1568,49 @@ var ART={
   '<path d="M106 162C112 158 122 157 131 160M101 174C108 170 117 169 124 171" stroke="#5a4a40" stroke-width="1.6"/>'+
   '</g></svg>',
  move:'<svg viewBox="0 0 320 176" xmlns="http://www.w3.org/2000/svg">'+FLOOR+'<g '+INK+'>'+
-  '<rect x="74" y="99" width="104" height="11" rx="5.5" fill="#e9e1db"/>'+
-  '<rect x="54" y="74" width="24" height="62" rx="7" fill="#ff7a59"/><rect x="78" y="84" width="12" height="42" rx="4" fill="#ffb59b"/>'+
-  '<rect x="174" y="74" width="24" height="62" rx="7" fill="#ff7a59"/><rect x="162" y="84" width="12" height="42" rx="4" fill="#ffb59b"/>'+
-  '<rect x="222" y="54" width="42" height="90" rx="13" fill="#9cc8f0"/><rect x="230" y="38" width="26" height="18" rx="5" fill="#1f1a1c"/><rect x="222" y="86" width="42" height="24" fill="#fffaf2"/>'+
-  '<path d="M236 98h14" stroke="#d23c33" stroke-width="3"/></g></svg>',
+  '<rect x="74" y="99" width="104" height="11" rx="5.5" fill="#ece9e3"/>'+
+  '<rect x="54" y="74" width="24" height="62" rx="7" fill="#eab08f"/><rect x="78" y="84" width="12" height="42" rx="4" fill="#f6ddcf"/>'+
+  '<rect x="174" y="74" width="24" height="62" rx="7" fill="#eab08f"/><rect x="162" y="84" width="12" height="42" rx="4" fill="#f6ddcf"/>'+
+  '<rect x="222" y="54" width="42" height="90" rx="13" fill="#a8cdea"/><rect x="230" y="38" width="26" height="18" rx="5" fill="#30343b"/><rect x="222" y="86" width="42" height="24" fill="#fffdf9"/>'+
+  '<path d="M236 98h14" stroke="#6a5cc2" stroke-width="3"/></g></svg>',
  study:'<svg viewBox="0 0 320 176" xmlns="http://www.w3.org/2000/svg">'+FLOOR+'<g '+INK+'>'+
-  '<rect x="34" y="118" width="70" height="16" rx="3" fill="#ff7a59"/><rect x="40" y="102" width="62" height="16" rx="3" fill="#ffd27a"/><rect x="36" y="86" width="66" height="16" rx="3" fill="#8fd6a8"/>'+
+  '<rect x="34" y="118" width="70" height="16" rx="3" fill="#eab08f"/><rect x="40" y="102" width="62" height="16" rx="3" fill="#e9d68f"/><rect x="36" y="86" width="66" height="16" rx="3" fill="#a3c99c"/>'+
   '<path d="M46 126h40M50 110h36M46 94h40" stroke-width="1.6" opacity=".45"/>'+
-  '<rect x="122" y="40" width="124" height="82" rx="8" fill="#fffaf2"/><rect x="132" y="50" width="104" height="62" rx="4" fill="#cbbcf7"/>'+
-  '<path d="M148 70h44M148 82h60M148 94h36" stroke="#fffaf2" stroke-width="5"/>'+
-  '<path d="M106 122H262L252 140H116Z" fill="#e9e1db"/>'+
-  '<rect x="268" y="98" width="30" height="38" rx="6" fill="#fffaf2"/><path d="M298 106c11 0 11 20 0 20" fill="none"/>'+
+  '<rect x="122" y="40" width="124" height="82" rx="8" fill="#fffdf9"/><rect x="132" y="50" width="104" height="62" rx="4" fill="#c9c0f2"/>'+
+  '<path d="M148 70h44M148 82h60M148 94h36" stroke="#fffdf9" stroke-width="5"/>'+
+  '<path d="M106 122H262L252 140H116Z" fill="#ece9e3"/>'+
+  '<rect x="268" y="98" width="30" height="38" rx="6" fill="#fffdf9"/><path d="M298 106c11 0 11 20 0 20" fill="none"/>'+
   '<path d="M276 86c-3-6 3-8 0-14M288 86c-3-6 3-8 0-14" fill="none" stroke-width="2"/></g></svg>',
  work:'<svg viewBox="0 0 320 176" xmlns="http://www.w3.org/2000/svg">'+FLOOR+'<g '+INK+'>'+
-  '<rect x="64" y="36" width="140" height="90" rx="8" fill="#fffaf2"/><rect x="74" y="46" width="120" height="70" rx="4" fill="#bfe8e2"/>'+
-  '<rect x="90" y="86" width="14" height="22" fill="#ff7a59"/><rect x="112" y="72" width="14" height="36" fill="#fffaf2"/><rect x="134" y="62" width="14" height="46" fill="#ff7a59"/><rect x="156" y="78" width="14" height="30" fill="#fffaf2"/>'+
-  '<path d="M48 126H220L208 144H60Z" fill="#e9e1db"/>'+
-  '<path d="M242 142h40l-5-34h-30Z" fill="#ff7a59"/>'+
+  '<rect x="64" y="36" width="140" height="90" rx="8" fill="#fffdf9"/><rect x="74" y="46" width="120" height="70" rx="4" fill="#cfe7e1"/>'+
+  '<rect x="90" y="86" width="14" height="22" fill="#eab08f"/><rect x="112" y="72" width="14" height="36" fill="#fffdf9"/><rect x="134" y="62" width="14" height="46" fill="#eab08f"/><rect x="156" y="78" width="14" height="30" fill="#fffdf9"/>'+
+  '<path d="M48 126H220L208 144H60Z" fill="#ece9e3"/>'+
+  '<path d="M242 142h40l-5-34h-30Z" fill="#eab08f"/>'+
   '<path d="M262 108c-2-20 6-34 18-40M262 108c0-16-10-28-22-30M262 108c4-12 14-16 24-14" fill="none" stroke-width="2.4"/>'+
-  '<path d="M280 68c6 8 0 16-8 14 0-8 2-12 8-14ZM240 78c-6 8 0 16 8 14 0-8-2-12-8-14ZM286 94c4 8-2 14-10 10 2-6 4-9 10-10Z" fill="#8fd6a8"/></g></svg>',
+  '<path d="M280 68c6 8 0 16-8 14 0-8 2-12 8-14ZM240 78c-6 8 0 16 8 14 0-8-2-12-8-14ZM286 94c4 8-2 14-10 10 2-6 4-9 10-10Z" fill="#a3c99c"/></g></svg>',
  rest:'<svg viewBox="0 0 320 176" xmlns="http://www.w3.org/2000/svg">'+FLOOR+'<g '+INK+'>'+
-  '<ellipse cx="114" cy="138" rx="50" ry="9" fill="#e9e1db"/>'+
-  '<rect x="80" y="64" width="64" height="72" rx="11" fill="#fffaf2"/><rect x="80.5" y="78" width="63" height="16" fill="#9cc8f0" stroke="none"/><path d="M80 78h64M80 94h64" stroke-width="2"/>'+
+  '<ellipse cx="114" cy="138" rx="50" ry="9" fill="#ece9e3"/>'+
+  '<rect x="80" y="64" width="64" height="72" rx="11" fill="#fffdf9"/><rect x="80.5" y="78" width="63" height="16" fill="#a8cdea" stroke="none"/><path d="M80 78h64M80 94h64" stroke-width="2"/>'+
   '<path d="M144 80c24 0 24 38 0 38" fill="none"/>'+
   '<path d="M96 52c-5-9 5-12 0-21M112 52c-5-9 5-12 0-21M128 52c-5-9 5-12 0-21" fill="none" stroke-width="2.2"/>'+
-  '<path d="M186 128c18-9 38-9 54 0V74c-16-9-36-9-54 0Z" fill="#fffaf2"/><path d="M240 128c16-9 36-9 54 0V74c-18-9-38-9-54 0Z" fill="#ffd27a"/>'+
+  '<path d="M186 128c18-9 38-9 54 0V74c-16-9-36-9-54 0Z" fill="#fffdf9"/><path d="M240 128c16-9 36-9 54 0V74c-18-9-38-9-54 0Z" fill="#e9d68f"/>'+
   '<path d="M198 86c10-4 22-4 32 0M198 98c10-4 22-4 32 0M198 110c10-4 22-4 32 0M252 86c10-4 22-4 32 0M252 98c10-4 22-4 32 0" fill="none" stroke-width="1.6" opacity=".5"/></g></svg>',
  social:'<svg viewBox="0 0 320 176" xmlns="http://www.w3.org/2000/svg">'+FLOOR+'<g '+INK+'>'+
-  '<path d="M62 30h108a14 14 0 0 1 14 14v40a14 14 0 0 1-14 14H100l-22 18V98H62a14 14 0 0 1-14-14V44a14 14 0 0 1 14-14Z" fill="#ffd27a"/>'+
-  '<path d="M150 66h104a14 14 0 0 1 14 14v34a14 14 0 0 1-14 14h-12v18l-22-18h-70a14 14 0 0 1-14-14V80a14 14 0 0 1 14-14Z" fill="#ff9f8a"/>'+
-  '</g><g fill="#1f1a1c"><circle cx="96" cy="64" r="5"/><circle cx="116" cy="64" r="5"/><circle cx="136" cy="64" r="5"/></g>'+
-  '<path d="M170 96h66M170 110h44" stroke="#fffaf2" stroke-width="5" stroke-linecap="round"/></svg>',
+  '<path d="M62 30h108a14 14 0 0 1 14 14v40a14 14 0 0 1-14 14H100l-22 18V98H62a14 14 0 0 1-14-14V44a14 14 0 0 1 14-14Z" fill="#e9d68f"/>'+
+  '<path d="M150 66h104a14 14 0 0 1 14 14v34a14 14 0 0 1-14 14h-12v18l-22-18h-70a14 14 0 0 1-14-14V80a14 14 0 0 1 14-14Z" fill="#f2c2ad"/>'+
+  '</g><g fill="#30343b"><circle cx="96" cy="64" r="5"/><circle cx="116" cy="64" r="5"/><circle cx="136" cy="64" r="5"/></g>'+
+  '<path d="M170 96h66M170 110h44" stroke="#fffdf9" stroke-width="5" stroke-linecap="round"/></svg>',
  chores:'<svg viewBox="0 0 320 176" xmlns="http://www.w3.org/2000/svg">'+FLOOR+'<g '+INK+'>'+
-  '<rect x="98" y="34" width="14" height="56" rx="6" fill="#ffd27a" transform="rotate(-14 105 62)"/>'+
-  '<path d="M126 70c-6-14 2-26 14-28 4 12-2 22-14 28Z" fill="#8fd6a8"/>'+
-  '<path d="M64 70h104l-9 76H73Z" fill="#ffb59b"/><path d="M92 70c0-26 48-26 48 0" fill="none"/>'+
-  '<g transform="translate(196 34) rotate(4)"><rect width="76" height="104" rx="6" fill="#fffaf2"/><rect x="24" y="-6" width="28" height="12" rx="4" fill="#e9e1db"/>'+
-  '<path d="M14 30l4 4 8-9M14 56l4 4 8-9" stroke="#d23c33"/><path d="M34 30h28M34 56h24M34 82h26"/><rect x="13" y="76" width="12" height="12" rx="2" fill="#fffaf2"/></g></g></svg>',
+  '<rect x="98" y="34" width="14" height="56" rx="6" fill="#e9d68f" transform="rotate(-14 105 62)"/>'+
+  '<path d="M126 70c-6-14 2-26 14-28 4 12-2 22-14 28Z" fill="#a3c99c"/>'+
+  '<path d="M64 70h104l-9 76H73Z" fill="#f6ddcf"/><path d="M92 70c0-26 48-26 48 0" fill="none"/>'+
+  '<g transform="translate(196 34) rotate(4)"><rect width="76" height="104" rx="6" fill="#fffdf9"/><rect x="24" y="-6" width="28" height="12" rx="4" fill="#ece9e3"/>'+
+  '<path d="M14 30l4 4 8-9M14 56l4 4 8-9" stroke="#6a5cc2"/><path d="M34 30h28M34 56h24M34 82h26"/><rect x="13" y="76" width="12" height="12" rx="2" fill="#fffdf9"/></g></g></svg>',
  travel:'<svg viewBox="0 0 320 176" xmlns="http://www.w3.org/2000/svg">'+FLOOR+'<g '+INK+'>'+
   '<path d="M104 54c0-26 48-26 48 0" fill="none"/>'+
-  '<rect x="78" y="50" width="100" height="98" rx="26" fill="#8fd6a8"/><rect x="96" y="94" width="64" height="40" rx="10" fill="#fffaf2"/><path d="M96 108h64"/>'+
+  '<rect x="78" y="50" width="100" height="98" rx="26" fill="#a3c99c"/><rect x="96" y="94" width="64" height="40" rx="10" fill="#fffdf9"/><path d="M96 108h64"/>'+
   '<path d="M184 150c22-6 30-16 46-12" fill="none" stroke-dasharray="6 8"/>'+
-  '<path d="M246 138c-26-30-36-48-36-64a36 36 0 0 1 72 0c0 16-10 34-36 64Z" fill="#ff7a59"/><circle cx="246" cy="74" r="12" fill="#fffaf2"/></g></svg>'
+  '<path d="M246 138c-26-30-36-48-36-64a36 36 0 0 1 72 0c0 16-10 34-36 64Z" fill="#eab08f"/><circle cx="246" cy="74" r="12" fill="#fffdf9"/></g></svg>'
 };
 
 // ---------- storage ----------
@@ -1542,8 +1662,18 @@ function keepFocus(fn){
   var a=document.activeElement,f=a&&a.getAttribute&&a.getAttribute("data-f");fn();
   if(f&&!a.isConnected){var n=document.querySelector('[data-f="'+f+'"]');if(n)n.focus({preventScroll:true});}
 }
-function sheetOpen(d){if(d.showModal){if(!d.open)d.showModal();}else d.setAttribute("open","");}
-function sheetShut(d){if(d.close){if(d.open)d.close();}else d.removeAttribute("open");}
+function sheetOpen(d){clearTimeout(d._shut);d.classList.remove("closing");
+  if(d.showModal){if(!d.open)d.showModal();}else d.setAttribute("open","");}
+// A sheet slides and fades out before it closes, unless Reduce Motion is on.
+// Opened again in the meantime, it simply stays.
+Array.prototype.forEach.call(document.querySelectorAll("dialog.sheet"),function(d){
+  d.addEventListener("cancel",function(e){e.preventDefault();var x=d.querySelector(".sheet-x");if(x)x.click();else sheetShut(d);});});
+function sheetShut(d){
+  if(!d.hasAttribute("open")||d.classList.contains("closing"))return;
+  function go(){d.classList.remove("closing");if(d.close){if(d.open)d.close();}else d.removeAttribute("open");}
+  if(reduceMotion()){go();return;}
+  d.classList.add("closing");d._shut=setTimeout(go,200);
+}
 
 function dayStats(d){
   d=d||new Date();
@@ -1569,39 +1699,21 @@ function weekDays(){
 }
 
 
-// ---------- the warm ground ----------
-// Five phases of the day, all light enough that the ink stays dark on them.
-var SKIES={
-  dawn:{base:"#fbeee9",a:"#ffc9b4",b:"#ffdcab",c:"#f6bcd3"},
-  day:{base:"#fbf1e9",a:"#ffd2a2",b:"#ffadbd",c:"#ffcaa8"},
-  golden:{base:"#fbede2",a:"#ffbf86",b:"#ff9fa0",c:"#ffd07e"},
-  dusk:{base:"#f9ebef",a:"#f7a9c5",b:"#dcb8f2",c:"#ffc3a8"},
-  night:{base:"#f1ebf3",a:"#cdbdf0",b:"#f1b8cf",c:"#bccaf3"}
-};
-var skyPhase=null;
-function phaseFor(m){if(m<300)return"night";if(m<480)return"dawn";if(m<960)return"day";if(m<1110)return"golden";if(m<1230)return"dusk";return"night";}
-function paintSky(){
-  var p=phaseFor(minsNow());if(p===skyPhase)return;skyPhase=p;
-  var s=SKIES[p],r=document.documentElement.style;
-  r.setProperty("--sky-base",s.base);r.setProperty("--sky-a",s.a);r.setProperty("--sky-b",s.b);r.setProperty("--sky-c",s.c);
-  var tc=el("theme-color");if(tc)tc.setAttribute("content",s.base);
-}
-
 // ---------- this week ----------
 function setArc(node,frac){
   var r=+node.getAttribute("r"),c=2*Math.PI*r,f=Math.max(0,Math.min(1,frac||0));
   node.style.strokeDasharray=c.toFixed(2);
   node.style.strokeDashoffset=(c*(1-f)).toFixed(2);
 }
-// A ring per day of this week, filling as that day's blocks are ticked, after
-// the reference. Today sits in a card of its own; a tap opens the day in Week.
+// A ring round each date of this week, filling as that day's blocks are
+// ticked. Today is lavender; a tap opens the day in Week.
 function renderStrip(now){
   var box=el("strip"),tk=key(now);box.innerHTML="";
   weekDays().forEach(function(d,i){
     var s=dayStats(d),k=key(d),b=document.createElement("button");b.type="button";
     if(k===tk)b.className="today";
-    b.setAttribute("aria-label",LONG[i]+(k===tk?", today":"")+": "+(s.list.length?s.hits+" of "+s.list.length+" done":"nothing planned"));
-    b.innerHTML='<svg viewBox="0 0 30 30" aria-hidden="true"><circle class="track" cx="15" cy="15" r="11.5"/><circle class="arc" cx="15" cy="15" r="11.5"/></svg><span>'+DAYS[i]+'</span>';
+    b.setAttribute("aria-label",LONG[i]+" "+d.getDate()+(k===tk?", today":"")+": "+(s.list.length?s.hits+" of "+s.list.length+" done":"nothing planned"));
+    b.innerHTML='<span class="sd" aria-hidden="true">'+DAYS[i]+'</span><span class="sr" aria-hidden="true"><svg viewBox="0 0 34 34"><circle class="track" cx="17" cy="17" r="14.5"/><circle class="arc" cx="17" cy="17" r="14.5"/></svg><b>'+d.getDate()+'</b></span>';
     setArc(b.querySelector(".arc"),k>tk?0:s.frac);
     b.addEventListener("click",function(){weekDay=i;show("week",false);});
     box.appendChild(b);
@@ -1659,23 +1771,26 @@ function emptyDay(day){
 }
 
 var CHECK='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5L10 17.5L19 7.5"/></svg>',popId=null;
-// A block as a card washed in its kind's colour. On Today the check ticks it,
-// the rest of the card opens it, a swipe right ticks it and a long swipe left
-// edits it. On Week, as a plan, there's no check and a tap opens the editor.
+// Its start and end, in the column down the left of the timetable.
+function whenCol(s,e){return '<span class="c-when"><b>'+esc(fmt(s))+'</b><span class="sr"> to </span><small>'+esc(fmt(e))+'</small></span>';}
+// A block as a timetable row with a bar in its kind's colour. On Today the
+// check ticks it, the rest of the row opens it, a swipe right ticks it and a
+// long swipe left edits it. On Week, as a plan, there's no check and a tap
+// opens the editor.
 function blockCard(b,k,isNow,m,n,week){
   var t=typeOf(b.type),s=toMin(b.start),e=s+b.mins,isD=!week&&isDone(k,b.id);
-  var wrap=document.createElement("div");wrap.className="swipe";wrap.style.setProperty("--d",n*40+"ms");
+  var wrap=document.createElement("div");wrap.className="swipe";wrap.style.setProperty("--d",Math.min(n,10)*28+"ms");
   var card=document.createElement("div");
-  card.className="card"+(isD?" done":"")+(isNow?" now":"")+(!week&&!isD&&e<=m?" past":"")+(b.id===popId?" pop":"");
-  card.style.setProperty("--h",t.hue);
+  card.className="card"+(week?" plan":"")+(isD?" done":"")+(isNow?" now":"")+(!week&&!isD&&e<=m?" past":"")+(b.id===popId?" pop":"");
+  card.setAttribute("data-tone",t.tone);
   var o=document.createElement("button");o.type="button";o.className="c-open";o.setAttribute("aria-haspopup","dialog");
   o.setAttribute("data-f",(week?"k":"t")+b.id);
-  o.innerHTML='<span class="c-ttl"></span><span class="c-det"></span><span class="c-time"></span>';
+  o.innerHTML=whenCol(s,e)+'<span class="c-main"><span class="c-ttl"></span><span class="c-det"></span><span class="c-time"><span class="tchip"></span><span></span></span></span>';
   o.querySelector(".c-ttl").textContent=b.activity;
   o.querySelector(".c-det").textContent=b.details||"";
-  var tm=o.querySelector(".c-time");tm.textContent=t.name+" · "+span(s,e)+" · "+dur(b.mins);
+  var tm=o.querySelector(".c-time");tm.firstChild.textContent=t.name;tm.lastChild.textContent=dur(b.mins);
   if(isNow){card.style.setProperty("--p",Math.min(1,(m-s)/b.mins).toFixed(4));
-    var l=document.createElement("b");l.textContent=" · "+left((e-m)*60000)+" left";tm.appendChild(l);}
+    var l=document.createElement("b");l.textContent=left((e-m)*60000)+" left";tm.appendChild(l);}
   o.addEventListener("click",function(){if(card._swiped)return;if(week)openEditor(b);else openBlock(b,k);});
   card.appendChild(o);
   if(!week){
@@ -1690,14 +1805,15 @@ function blockCard(b,k,isNow,m,n,week){
   wrap.appendChild(card);
   return wrap;
 }
-// Free time as a dashed card, offering blocks to fill it. m: minutes into
-// today, so free time already gone can fade; null on Week.
+// Free time as a dashed row, offering blocks to fill it. m: minutes into
+// today, so free time already gone can fade and the free time you're in now
+// stands out; null on Week.
 function gapCard(g,m,n){
-  var ideas=ideasFor(g),f="g"+g.day+"-"+g.s+"-";
-  var c=document.createElement("div");c.className="gapcard"+(m!==null&&g.e<=m?" past":"");c.style.setProperty("--d",n*40+"ms");
-  c.innerHTML='<span class="c-ttl"></span><span class="c-time"></span><span class="ideas"></span>';
-  c.querySelector(".c-ttl").textContent="Free · "+dur(g.e-g.s);
-  c.querySelector(".c-time").textContent=span(g.s,g.e)+(ideas.length?". Fill it with:":"");
+  var ideas=ideasFor(g),f="g"+g.day+"-"+g.s+"-",now=m!==null&&m>=g.s&&m<g.e;
+  var c=document.createElement("div");c.className="gapcard"+(m!==null&&g.e<=m?" past":"")+(now?" now":"");c.style.setProperty("--d",Math.min(n,10)*28+"ms");
+  c.innerHTML=whenCol(g.s,g.e)+'<span class="c-main"><span class="c-ttl"></span><span class="c-time"></span><span class="ideas"></span></span>';
+  c.querySelector(".c-ttl").textContent=now?"Free now · "+dur(Math.ceil(g.e-m))+" left":"Free · "+dur(g.e-g.s);
+  c.querySelector(".c-time").textContent=ideas.length?"Fill it with:":"";
   var box=c.querySelector(".ideas");
   ideas.forEach(function(x,k){box.appendChild(ideaBtn("+ "+x.b.activity,"Add "+x.b.activity+", "+fmt(x.s)+" to "+fmt(x.s+x.mins),
     f+k,function(){addIdea(g,x);}));});
@@ -1761,14 +1877,14 @@ function renderNow(st,cn,m){
   var fb=el("now-focus"),db=el("now-done"),det=el("now-detail"),nx=el("now-next");
   card.classList.toggle("hide",!st.list.length);
   if(!show){
-    card.classList.add("idle");card.style.removeProperty("--h");
+    card.classList.add("idle");card.removeAttribute("data-tone");
     el("now-label").textContent="That's the day";
     el("now-title").textContent="Nothing left to do";
     el("now-when").textContent="";det.classList.add("hide");ring.classList.add("hide");
     fb.classList.add("hide");db.classList.add("hide");nx.classList.add("hide");return;
   }
   var s=toMin(show.start),e=s+show.mins;
-  card.style.setProperty("--h",HUES[show.type]||24);
+  card.setAttribute("data-tone",typeOf(show.type).tone);
   card.classList.toggle("idle",!cn.cur);
   el("now-label").textContent=cn.cur?"Now":"Next up";
   el("now-title").textContent=show.activity;
@@ -1796,7 +1912,7 @@ function openFocus(b){
   focusBlock=b;el("f-title").textContent=b.activity;
   el("f-sub").textContent="until "+fmt(toMin(b.start)+b.mins);
   ruleIdx=Math.floor(Math.random()*RULES.length);el("f-rule").textContent=RULES[ruleIdx];
-  el("focus").hidden=false;document.body.style.overflow="hidden";
+  el("focus").hidden=false;document.body.style.overflow="hidden";appInert(true);
   updateClock();focusTimer=setInterval(updateClock,1000);
   ruleTimer=setInterval(function(){
     var r=el("f-rule");r.style.opacity=0;
@@ -1805,7 +1921,7 @@ function openFocus(b){
   requestWake();el("f-exit").focus();
 }
 function closeFocus(){
-  el("focus").hidden=true;document.body.style.overflow="";
+  el("focus").hidden=true;document.body.style.overflow="";appInert(false);
   clearInterval(focusTimer);clearInterval(ruleTimer);focusBlock=null;
   if(wake){try{wake.release();}catch(e){}wake=null;}el("f-lock").hidden=true;
   renderToday();
@@ -1827,49 +1943,41 @@ el("f-exit").addEventListener("click",closeFocus);
 el("f-done").addEventListener("click",function(){var b=focusBlock,k=key(new Date());closeFocus();if(b&&!isDone(k,b.id))tick(k,b.id);});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!el("focus").hidden)closeFocus();});
 
-// ---------- celebration ----------
+// ---------- toasts ----------
 function toast(text,undo){
-  var t=document.createElement("div");t.className="toast glass";t.setAttribute("role","status");t.textContent=text;
+  var t=document.createElement("div");t.className="toast";t.setAttribute("role","status");t.textContent=text;
+  // It slides back up and fades rather than vanishing, and one at a time: a
+  // new one sends the last on its way, so two never sit on top of each other.
+  function gone(){if(t.classList.contains("out"))return;t.classList.add("out");setTimeout(function(){t.remove();},reduceMotion()?0:220);}
+  t._gone=gone;
+  Array.prototype.forEach.call(document.querySelectorAll(".toast"),function(o){if(o._gone)o._gone();else o.remove();});
   if(undo){var u=document.createElement("button");u.type="button";u.className="toast-undo";u.innerHTML="<span>Undo</span>";
     u.addEventListener("click",function(){t.remove();undo();});t.appendChild(u);}
-  // Over an open sheet it has to live inside it, or the sheet's backdrop covers it.
-  (document.querySelector("dialog[open]")||document.body).appendChild(t);setTimeout(function(){t.remove();},undo?6000:2400);
+  // Over an open sheet it has to live inside it, or the sheet's backdrop covers
+  // it; not inside one that's on its way out, though, which takes it along.
+  (document.querySelector("dialog[open]:not(.closing)")||document.body).appendChild(t);setTimeout(gone,undo?6000:2400);
 }
-function celebrate(){
-  announce("Day complete. Every block is ticked.");toast("Day complete — every block ticked");
-  if(reduceMotion())return;
-  var c=document.createElement("canvas");c.className="confetti";c.setAttribute("aria-hidden","true");
-  var dpr=Math.min(2,window.devicePixelRatio||1),W=innerWidth,H=innerHeight;
-  c.width=W*dpr;c.height=H*dpr;document.body.appendChild(c);
-  var x=c.getContext("2d");x.scale(dpr,dpr);
-  var cols=["#d23c33","#ff7a59","#ffb59b","#ffd27a","#c42a5c","#8fd6a8","#9cc8f0"],P=[];
-  for(var i=0;i<140;i++)P.push({x:W/2,y:H*.32,vx:(Math.random()-.5)*14,vy:-Math.random()*13-4,
-    s:5+Math.random()*6,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[i%cols.length]});
-  var t0=performance.now();
-  (function frame(t){
-    var el2=t-t0;x.clearRect(0,0,W,H);
-    P.forEach(function(p){p.vy+=.38;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;
-      x.save();x.translate(p.x,p.y);x.rotate(p.r);x.globalAlpha=Math.max(0,1-el2/1900);
-      x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);x.restore();});
-    if(el2<1900)requestAnimationFrame(frame);else c.remove();
-  })(t0);
-}
+// The last block of the day ticked: a word to say so, and the day's ring closes.
+function celebrate(){announce("Day complete. Every block is ticked.");toast("Day complete. Every block ticked.");}
 
 
 // ---------- week ----------
-var weekDay=dayIdx(new Date());
+var weekDay=dayIdx(new Date()),weekShown=null;
 function renderWeek(){
-  var box=el("w-days");box.innerHTML="";
+  var box=el("w-days"),td=dayIdx(new Date());box.innerHTML="";
   DAYS.forEach(function(n,i){var b=document.createElement("button");b.type="button";
-    b.className="chip-btn";b.textContent=n;b.setAttribute("aria-label",LONG[i]);b.setAttribute("data-f","w"+i);
+    b.className="chip-btn"+(i===td?" today":"");b.textContent=n;b.setAttribute("aria-label",LONG[i]+(i===td?", today":""));b.setAttribute("data-f","w"+i);
     b.setAttribute("aria-pressed",i===weekDay?"true":"false");
     b.addEventListener("click",function(){weekDay=i;keepFocus(renderWeek);});box.appendChild(b);});
   var list=forDay(weekDay),mins=list.reduce(function(a,b){return a+b.mins;},0);
   el("w-title").textContent=LONG[weekDay];
   el("w-sum").textContent=list.length?plural(list.length,"block")+" · "+hrs(mins)+" planned":"";
-  // The same cards as Today, as a plan: no checks, free time between, and a
-  // tap opens a block in the editor, over Week.
-  var wl=el("w-list");wl.innerHTML="";wl.className="cards"+(reduceMotion()?"":" draw");
+  // The same rows as Today, as a plan: no checks, free time between, and a
+  // tap opens a block in the editor, over Week. Another day slides in from
+  // the side it's on.
+  var wl=el("w-list"),dir=weekShown===null||weekShown===weekDay?0:weekDay>weekShown?1:-1;weekShown=weekDay;
+  wl.innerHTML="";wl.className="cards";
+  if(dir&&!reduceMotion()){wl.style.setProperty("--dir",dir);void wl.offsetWidth;wl.classList.add("swap");}
   if(!list.length)wl.appendChild(emptyDay(weekDay));
   else withGaps(list,weekDay).forEach(function(b,i){wl.appendChild(b.gap?gapCard(b,null,i):blockCard(b,null,false,0,i,true));});
   renderHeat();
@@ -1898,105 +2006,184 @@ function renderHeat(){
 }
 
 // ---------- due ----------
-// Assignments and anything else with a deadline. Unlike blocks they happen
-// once: a due date and time, a course, notes and files (the brief, a photo of
-// the whiteboard). Today shows the next three; Due has them all, soonest first.
+// Assignments, exams and quizzes: things that happen once, on a date. Each has
+// a kind, a date and time, a course, notes and files (the brief, a photo of
+// the whiteboard). Today shows the next three; Due has them all, soonest
+// first, one kind at a time if you like. Ones saved before there were kinds
+// have none, and count as assignments.
+var KINDS={
+  assignment:{name:"Assignment",many:"assignments",one:"an assignment",tone:"blue",
+    icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3.5H7.5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V8Z"/><path d="M14 3.5V8h4.5M9 12.5h6M9 16h4"/></svg>'},
+  exam:{name:"Exam",many:"exams",one:"an exam",tone:"lav",
+    icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.8 9.4 12 5.2l9.2 4.2L12 13.6Z"/><path d="M6.6 11.4v4.2c0 1.5 2.4 2.8 5.4 2.8s5.4-1.3 5.4-2.8v-4.2M21.2 9.4v4.8"/></svg>'},
+  quiz:{name:"Quiz",many:"quizzes",one:"a quiz",tone:"peach",
+    icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5h-7.5L7 20v-3.5H5A1.5 1.5 0 0 1 3.5 15V6A1.5 1.5 0 0 1 5 4.5Z"/><path d="M10 9a2 2 0 1 1 2.9 1.8c-.6.3-.9.8-.9 1.4v.2M12 14.4v.1"/></svg>'}
+};
+function kindOf(t){return t&&KINDS[t.kind]?t.kind:"assignment";}
+// An exam or a quiz happens, rather than being handed in.
+function isTest(t){return kindOf(t)!=="assignment";}
+function kicon(t){var k=KINDS[kindOf(t)];return '<span class="k-ic" data-tone="'+k.tone+'">'+k.icon+'</span>';}
 function dueAt(t){var d=t&&t.due?new Date(t.due):null;return d&&!isNaN(d)?d:null;}
 function calDays(a,b){var x=new Date(a),y=new Date(b);x.setHours(0,0,0,0);y.setHours(0,0,0,0);return Math.round((y-x)/864e5);}
-// "5h left", "Tomorrow", "3 days", "Overdue": by the calendar, not by 24 hours,
-// so a deadline tomorrow night never reads as two days away.
-function leftText(d,now){
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+// "5h left", "Tomorrow", "3 days", "2 days late" for a deadline; "In 5h",
+// "Tomorrow", "In 3 days" for an exam or a quiz. By the calendar, not by 24
+// hours, so a deadline tomorrow night never reads as two days away.
+function leftText(d,now,test){
   var ms=d-now,n=calDays(now,d);
-  if(ms<0)return "Overdue";
-  if(n===0)return ms<36e5?Math.max(1,Math.ceil(ms/6e4))+"m left":Math.floor(ms/36e5)+"h left";
-  return n===1?"Tomorrow":n+" days";
+  if(ms<0){if(test)return "";
+    return n<0?plural(-n,"day")+" late":-ms<36e5?Math.max(1,Math.floor(-ms/6e4))+"m late":Math.floor(-ms/36e5)+"h late";}
+  if(n===0){var u=ms<36e5?Math.max(1,Math.ceil(ms/6e4))+"m":Math.floor(ms/36e5)+"h";return test?"In "+u:u+" left";}
+  return n===1?"Tomorrow":test?"In "+n+" days":n+" days";
 }
-function leftClass(d,now){var ms=d-now;return ms<0?" late":ms<2*864e5?" soon":"";}
+// Where one stands: Upcoming, Due soon (inside two days), Overdue or
+// Completed. An exam or a quiz whose time has gone by unticked is Past rather
+// than overdue: there was nothing to hand in.
+function status(t,d,now){
+  if(t.done)return {c:"done",w:"Completed"};
+  if(!d)return {c:"",w:"No date"};
+  var ms=d-now;
+  if(ms<0)return isTest(t)?{c:"",w:"Past"}:{c:"late",w:"Overdue"};
+  if(ms<2*864e5)return {c:"soon",w:isTest(t)?"Soon":"Due soon"};
+  return {c:"",w:"Upcoming"};
+}
 function dueWhen(d){
   var n=calDays(new Date(),d);
   return (n===0?"today":n===1?"tomorrow":n===-1?"yesterday":n>1&&n<7?LONG[dayIdx(d)]:shortDate(d)+(d.getFullYear()!==new Date().getFullYear()?" "+d.getFullYear():""))+", "+clock(d);
 }
-// Each course keeps one colour, picked from pastels spread round the wheel.
-var COURSE_HUES=[24,138,198,266,44,320,172,352];
-function courseHue(c){var h=7;String(c||"").toUpperCase().split("").forEach(function(ch){h=(h*31+ch.charCodeAt(0))>>>0;});
-  return COURSE_HUES[h%COURSE_HUES.length];}
+// "Due Friday, 11:59pm", or "Exam tomorrow, 9am".
+function datePhrase(t,d){return (isTest(t)?KINDS[kindOf(t)].name:"Due")+" "+dueWhen(d);}
 function byDue(a,b){var x=dueAt(a),y=dueAt(b);return (x?+x:Infinity)-(y?+y:Infinity);}
 function openTasks(){return tasks.filter(function(t){return !t.done;}).sort(byDue);}
+// A countdown that reads differently from last time rolls up into place.
+var cdSeen={};
+function rolled(node,id,text){if(cdSeen[id]!==undefined&&cdSeen[id]!==text&&!reduceMotion())node.classList.add("roll");cdSeen[id]=text;}
+// Its status, and the time left, on the right of a row.
+function sideNode(t,d,now){
+  var s=document.createElement("span"),st=status(t,d,now),c=document.createElement("span");s.className="tk-side";
+  c.className="st"+(st.c?" "+st.c:"");c.textContent=st.w;s.appendChild(c);
+  var txt=d&&!t.done?leftText(d,now,isTest(t)):"";
+  if(txt){var cd=document.createElement("span");cd.className="cd"+(st.c==="late"?" late":"");cd.textContent=txt;rolled(cd,t.id,txt);s.appendChild(cd);}
+  return s;
+}
+// What's coming, on Today: anything open with a date, apart from exams and
+// quizzes already gone by.
+function upcoming(now){return openTasks().filter(function(t){var d=dueAt(t);return d&&!(isTest(t)&&d<now);});}
 function renderDueSoon(now){
-  var box=el("t-due"),open=openTasks().filter(function(t){return dueAt(t);});
+  var box=el("t-due"),open=upcoming(now);
   box.classList.toggle("hide",!open.length);if(!open.length)return;
   var l=el("td-list");l.innerHTML="";
   open.slice(0,3).forEach(function(t){
     var d=dueAt(t),r=document.createElement("button");r.type="button";r.className="duerow";
     r.setAttribute("aria-haspopup","dialog");r.setAttribute("data-f","s"+t.id);
-    r.innerHTML='<span><span class="t"></span><span class="w"></span></span><span class="left-pill"></span>';
+    r.innerHTML=kicon(t)+'<span><span class="t"></span><span class="w"></span></span>';
     r.querySelector(".t").textContent=t.title;
-    r.querySelector(".w").textContent=(t.course?t.course+" · ":"")+"Due "+dueWhen(d);
-    var p=r.querySelector(".left-pill");p.textContent=leftText(d,now);p.className="left-pill"+leftClass(d,now);
+    r.querySelector(".w").textContent=(t.course?t.course+" · ":"")+datePhrase(t,d);
+    r.appendChild(sideNode(t,d,now));
     r.addEventListener("click",function(){openTask(t);});l.appendChild(r);
   });
   el("td-more").textContent=open.length>3?"See all "+open.length:"See all";
 }
 el("td-more").addEventListener("click",function(){show("due",false);});
 
-var dueAll=false;
+// dueFilter: "all" or one kind. freshId: the one just added or ticked, which
+// glows for a moment when the list is drawn.
+var dueAll=false,dueFilter="all",freshId=null;
 function renderDue(){
-  var box=el("d-list"),now=new Date();box.innerHTML="";
-  var open=openTasks(),fin=tasks.filter(function(t){return t.done;}).sort(function(a,b){return b.done-a.done;});
-  var late=open.filter(function(t){var d=dueAt(t);return d&&d<now;}),week=new Date(+now+7*864e5);
-  el("due-sum").textContent=open.length?plural(open.length,"thing")+" to hand in"+(late.length?" · "+late.length+" overdue":""):tasks.length?"All handed in. Nice.":"";
-  if(!tasks.length){box.appendChild(emptyDue());return;}
-  [["Overdue",late],
+  var box=el("d-list"),now=new Date(),has=tasks.length>0;box.innerHTML="";
+  var mine=function(t){return dueFilter==="all"||kindOf(t)===dueFilter;},gone=function(t){var d=dueAt(t);return d&&d<now;};
+  var all=openTasks(),open=all.filter(mine),fin=tasks.filter(function(t){return t.done&&mine(t);}).sort(function(a,b){return b.done-a.done;});
+  var late=all.filter(function(t){return gone(t)&&!isTest(t);}).length,todo=all.filter(function(t){return !(isTest(t)&&gone(t));}).length;
+  var week=new Date(+now+7*864e5);
+  el("due-sum").textContent=todo?plural(todo,"thing")+" to do"+(late?" · "+late+" overdue":""):has?"All done. Nice.":"";
+  el("due-top").classList.toggle("hide",!has);
+  if(view==="due")el("e-add").setAttribute("aria-label","Add "+KINDS[KINDS[dueFilter]?dueFilter:"assignment"].one);
+  renderDueFilter();renderNextUp(now);
+  if(!has){box.appendChild(emptyDue());return;}
+  var shown=0;
+  [["Overdue",open.filter(function(t){return gone(t)&&!isTest(t);})],
    ["This week",open.filter(function(t){var d=dueAt(t);return !d||d>=now&&d<week;})],
    ["Later",open.filter(function(t){var d=dueAt(t);return d&&d>=week;})],
-   ["Handed in",dueAll?fin:fin.slice(0,5)]].forEach(function(g){
-    if(!g[1].length)return;
+   ["Past",open.filter(function(t){return gone(t)&&isTest(t);})],
+   ["Completed",dueAll?fin:fin.slice(0,5)]].forEach(function(g){
+    if(!g[1].length)return;shown++;
     var sec=document.createElement("section");sec.className="duegroup";
-    sec.innerHTML='<div class="parthead"><h3 class="label"></h3><span class="count"></span></div>';
+    sec.innerHTML='<div class="parthead"><h3 class="label"></h3><span class="count"></span></div><div class="tklist" role="list"></div>';
     sec.querySelector(".label").textContent=g[0];
-    sec.querySelector(".count").textContent=String(g[0]==="Handed in"?fin.length:g[1].length);
-    g[1].forEach(function(t){sec.appendChild(taskCard(t,now));});
-    if(g[0]==="Handed in"&&fin.length>5){var m=document.createElement("button");m.type="button";m.className="link";m.style.marginTop="14px";
+    sec.querySelector(".count").textContent=String(g[0]==="Completed"?fin.length:g[1].length);
+    var list=sec.querySelector(".tklist");g[1].forEach(function(t){list.appendChild(taskRow(t,now));});
+    if(g[0]==="Completed"&&fin.length>5){var m=document.createElement("button");m.type="button";m.className="link";m.style.marginTop="14px";
       m.textContent=dueAll?"Show fewer":"Show all "+fin.length;m.addEventListener("click",function(){dueAll=!dueAll;renderDue();});sec.appendChild(m);}
     box.appendChild(sec);
   });
+  if(!shown){var p=document.createElement("p");p.className="material empty";p.textContent="No "+KINDS[dueFilter].many+" yet.";box.appendChild(p);}
+}
+// All, or one kind at a time.
+function renderDueFilter(){
+  var box=el("due-filter");box.innerHTML="";
+  [["all","All"]].concat(Object.keys(KINDS).map(function(k){return [k,cap(KINDS[k].many)];})).forEach(function(f){
+    var b=document.createElement("button");b.type="button";b.setAttribute("data-f","f"+f[0]);
+    b.setAttribute("aria-pressed",dueFilter===f[0]?"true":"false");b.textContent=f[1];
+    b.addEventListener("click",function(){if(dueFilter!==f[0]){dueFilter=f[0];keepFocus(renderDue);}});
+    box.appendChild(b);
+  });
+}
+Array.prototype.forEach.call(document.querySelectorAll(".due-add"),function(b){
+  b.addEventListener("click",function(){openTask(null,b.getAttribute("data-kind"));});});
+// The next exam or quiz in the coming fortnight sits above the list: calm,
+// but hard to miss, with the days still to go.
+function renderNextUp(now){
+  var box=el("d-next");box.innerHTML="";
+  var t=openTasks().filter(function(x){var d=dueAt(x);
+    return isTest(x)&&d&&d>=now&&d-now<14*864e5&&(dueFilter==="all"||kindOf(x)===dueFilter);})[0];
+  if(!t)return;
+  var d=dueAt(t),k=KINDS[kindOf(t)],ms=d-now,n=calDays(now,d),b=document.createElement("button");
+  b.type="button";b.className="material nextup";b.setAttribute("data-tone",k.tone);b.setAttribute("aria-haspopup","dialog");b.setAttribute("data-f","n"+t.id);
+  b.innerHTML='<span><span class="nu-k"></span><span class="nu-t"></span><span class="nu-w"></span></span><span class="nu-n"><b></b><small></small></span>';
+  b.querySelector(".nu-k").textContent="Next "+k.name.toLowerCase()+(t.course?" · "+t.course:"");
+  b.querySelector(".nu-t").textContent=t.title;
+  b.querySelector(".nu-w").textContent=cap(dueWhen(d));
+  var num=n>0?n:ms<36e5?Math.max(1,Math.ceil(ms/6e4)):Math.floor(ms/36e5),unit=n>1?"days":n===1?"day":ms<36e5?"min":num===1?"hour":"hours";
+  var nb=b.querySelector(".nu-n b");nb.textContent=num;b.querySelector(".nu-n small").textContent=unit+" to go";rolled(nb,"n"+t.id,num+unit);
+  b.addEventListener("click",function(){openTask(t);});
+  box.appendChild(b);
 }
 function emptyDue(){
   var s=document.createElement("section");s.className="material emptyday";
   s.innerHTML='<div class="ed-art" aria-hidden="true">'+ART.study+'</div><p class="ed-h serif">Nothing due</p>'+
-    '<p class="ed-p">Add assignments, reports and anything else with a deadline. Dayline counts down to each one and keeps its files with it.</p>'+
-    '<button type="button" class="btn prominent">Add an assignment</button>';
-  s.querySelector(".btn").addEventListener("click",function(){openTask(null);});
+    '<p class="ed-p">Add assignments, exams and quizzes. Dayline counts down to each one and keeps its files with it.</p><div class="ed-acts"></div>';
+  var acts=s.querySelector(".ed-acts");
+  Object.keys(KINDS).forEach(function(k,i){var b=document.createElement("button");b.type="button";b.className="btn"+(i?" soft":" prominent");
+    b.setAttribute("aria-haspopup","dialog");b.textContent="Add "+KINDS[k].one;b.addEventListener("click",function(){openTask(null,k);});acts.appendChild(b);});
   return s;
 }
-// One assignment: its course, how long is left, what it is and when it's due.
-// The check marks it handed in; the rest opens it.
-function taskCard(t,now){
-  var d=dueAt(t),late=!t.done&&d&&d<now,w=document.createElement("div");
-  w.className="task"+(t.done?" done":"")+(late?" late":"");w.style.setProperty("--h",courseHue(t.course));
-  var o=document.createElement("button");o.type="button";o.className="t-open";o.setAttribute("aria-haspopup","dialog");o.setAttribute("data-f","a"+t.id);
-  o.innerHTML='<span class="t-top"></span><span class="t-ttl"></span><span class="t-when"></span>';
-  var top=o.querySelector(".t-top");
-  if(t.course){var p=document.createElement("span");p.className="pill";p.textContent=t.course;top.appendChild(p);}
-  if(!t.done&&d){var lp=document.createElement("span");lp.className="left-pill"+leftClass(d,now);lp.textContent=leftText(d,now);top.appendChild(lp);}
-  o.querySelector(".t-ttl").textContent=t.title;
+// One row: its kind, name, course and date, how it stands and the time left.
+// The check ticks it off (handed in, or sat); the rest of the row opens it.
+function taskRow(t,now){
+  var d=dueAt(t),st=status(t,d,now),test=isTest(t),w=document.createElement("div");
+  w.className="tk"+(t.done?" done":"")+(st.c==="late"?" late":"")+(t.id===freshId?" fresh":"");w.setAttribute("role","listitem");
+  var o=document.createElement("button");o.type="button";o.className="tk-open";o.setAttribute("aria-haspopup","dialog");o.setAttribute("data-f","a"+t.id);
+  o.innerHTML=kicon(t)+'<span class="tk-body"><span class="tk-ttl"></span><span class="tk-meta"></span></span>';
+  o.querySelector(".tk-ttl").textContent=t.title;
   var nf=(t.files||[]).length;
-  o.querySelector(".t-when").textContent=(t.done?"Handed in "+whenText(new Date(t.done)):d?"Due "+dueWhen(d):"No due date")+(nf?" · "+plural(nf,"file"):"");
+  o.querySelector(".tk-meta").textContent=(t.course?t.course+" · ":"")+
+    (t.done?(test?"Done ":"Handed in ")+whenText(new Date(t.done)):d?datePhrase(t,d):"No date")+(nf?" · "+plural(nf,"file"):"");
+  o.appendChild(sideNode(t,d,now));
   o.addEventListener("click",function(){openTask(t);});
   var c=document.createElement("button");c.type="button";c.className="c-tick";c.setAttribute("aria-pressed",t.done?"true":"false");
-  c.setAttribute("aria-label","Handed in: "+t.title);c.setAttribute("data-f","y"+t.id);c.innerHTML="<i>"+CHECK+"</i>";
+  c.setAttribute("aria-label",(test?"Done: ":"Handed in: ")+t.title);c.setAttribute("data-f","y"+t.id);c.innerHTML="<i>"+CHECK+"</i>";
   c.addEventListener("click",function(){toggleTask(t.id);});
   w.appendChild(o);w.appendChild(c);
   return w;
 }
-function dueChanged(){if(view==="due")keepFocus(renderDue);else if(view==="today")keepFocus(renderToday);}
+function dueChanged(){if(view==="due")keepFocus(renderDue);else if(view==="today")keepFocus(renderToday);freshId=null;}
 function toggleTask(id){
   var t=tasks.filter(function(x){return x.id===id;})[0];if(!t)return;
-  var at=t.done?0:Date.now();
-  tasks=tasks.map(function(x){return x.id===id?Object.assign({},x,{done:at}):x;});save(K.tasks,tasks);dueChanged();
-  announce(at?t.title+" handed in":t.title+" is back on the list");
-  if(at)toast("Handed in · "+t.title,function(){
-    tasks=tasks.map(function(x){return x.id===id?Object.assign({},x,{done:0}):x;});save(K.tasks,tasks);dueChanged();announce("Undone");});
+  var at=t.done?0:Date.now(),test=isTest(t);
+  tasks=tasks.map(function(x){return x.id===id?Object.assign({},x,{done:at}):x;});save(K.tasks,tasks);freshId=id;dueChanged();
+  announce(at?t.title+(test?" done":" handed in"):t.title+" is back on the list");
+  if(at)toast((test?"Done · ":"Handed in · ")+t.title,function(){
+    tasks=tasks.map(function(x){return x.id===id?Object.assign({},x,{done:0}):x;});save(K.tasks,tasks);freshId=id;dueChanged();announce("Undone");});
 }
 
 // ---------- files ----------
@@ -2056,10 +2243,31 @@ function fileRow(f,blob,onDrop){
 }
 
 // ---------- the assignment sheet ----------
-// Adding and editing share one sheet: + adds one, and a tap on one opens it.
-// Its saved files come in as "kept". Any taken out, and a deleted assignment's
-// files, stay on the phone until the Undo after saving has gone.
-var editingTask=null,pendingF=[],aGen=0,aBusy=0;
+// Adding and editing share one sheet, for an assignment, an exam or a quiz:
+// Add opens it new, and a tap on one opens that one. Its saved files come in
+// as "kept". Any taken out, and a deleted one's files, stay on the phone
+// until the Undo after saving has gone.
+var editingTask=null,pendingF=[],aGen=0,aBusy=0,aKind="assignment";
+// The sheet's words follow its kind: an assignment is due and handed in; an
+// exam or a quiz starts at a time and is done.
+var KIND_FORM={
+  assignment:{name:"What's due",ph:"Lab report 3",date:"Due date",time:"Time",notes:"What's asked for, the word count, where to hand it in",at:"23:59"},
+  exam:{name:"Exam",ph:"Midterm",date:"Date",time:"Starts at",notes:"Topics, the venue and your seat, what to bring",at:"09:00"},
+  quiz:{name:"Quiz",ph:"Quiz 2",date:"Date",time:"Starts at",notes:"Chapters, online or in class",at:"09:00"}
+};
+function editedTask(){var id=editingTask;return id?tasks.filter(function(x){return x.id===id;})[0]||null:null;}
+function setKind(k){
+  var was=aKind,f,t=editedTask();aKind=KINDS[k]?k:"assignment";f=KIND_FORM[aKind];
+  Array.prototype.forEach.call(el("a-kind").children,function(b){b.setAttribute("aria-pressed",b.getAttribute("data-kind")===aKind?"true":"false");});
+  el("a-title").textContent=t?KINDS[aKind].name:"New "+KINDS[aKind].name.toLowerCase();
+  el("a-name-l").textContent=f.name;el("a-name").placeholder=f.ph;
+  el("a-date-l").textContent=f.date;el("a-time-l").textContent=f.time;el("a-notes").placeholder=f.notes;
+  el("a-save").textContent=t?"Save changes":"Add "+KINDS[aKind].name.toLowerCase();
+  if(t)el("a-hand").textContent=aKind==="assignment"?(t.done?"Not handed in yet":"Mark as handed in"):(t.done?"Not done yet":"Mark as done");
+  // A new one's time follows its kind, until you've picked a time yourself.
+  if(!t&&was!==aKind&&el("a-time").value===KIND_FORM[was].at)el("a-time").value=f.at;
+}
+Array.prototype.forEach.call(el("a-kind").children,function(b){b.addEventListener("click",function(){setKind(b.getAttribute("data-kind"));});});
 var FILE_NOTE="PDFs, documents and photos, up to 10 MB each. They stay on this phone, and in your own Supabase while Sync is on.";
 function aNote(t){el("a-file-note").textContent=t||FILE_NOTE;}
 function aErr(t){var n=el("a-err");n.textContent=t;n.classList.toggle("hide",!t);}
@@ -2069,16 +2277,17 @@ function renderPendingFiles(){
   pendingF.forEach(function(p){box.appendChild(fileRow(p.f,p.blob,function(){if(!p.kept)fdrop(p.f.id);
     pendingF=pendingF.filter(function(q){return q!==p;});renderPendingFiles();}));});
 }
-function defaultDue(){var d=new Date();d.setDate(d.getDate()+7);d.setHours(23,59,0,0);return d;}
+// A week from now: at 11:59pm for an assignment, 9am for an exam or a quiz.
+function defaultDue(k){var d=new Date(),at=KIND_FORM[k].at.split(":");d.setDate(d.getDate()+7);d.setHours(+at[0],+at[1],0,0);return d;}
 function courses(){var s={};tasks.forEach(function(t){if(t.course)s[t.course]=1;});return Object.keys(s).sort();}
-function taskForm(t){
+function taskForm(t,kind){
   editingTask=t?t.id:null;dropPendingF();aGen++;aBusy=0;
-  el("a-title").textContent=t?"Assignment":"New assignment";el("a-save").textContent=t?"Save changes":"Add assignment";el("a-save").disabled=false;
+  el("a-save").disabled=false;
   el("a-delete").classList.toggle("hide",!t);el("a-hand").classList.toggle("hide",!t);
-  if(t)el("a-hand").textContent=t.done?"Not handed in yet":"Mark as handed in";
-  var d=t&&dueAt(t)||defaultDue();
+  var k=t?kindOf(t):KINDS[kind]?kind:"assignment",d=t&&dueAt(t)||defaultDue(k);
   el("a-name").value=t?t.title:"";el("a-course").value=t&&t.course||"";el("a-notes").value=t&&t.notes||"";
   el("a-date").value=key(d);el("a-time").value=String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
+  aKind=k;setKind(k);
   aErr("");aNote("");
   var dl=el("a-courses");dl.innerHTML="";courses().forEach(function(c){var o=document.createElement("option");o.value=c;dl.appendChild(o);});
   renderPendingFiles();
@@ -2086,7 +2295,7 @@ function taskForm(t){
       return fget(f.id).then(function(b){return {f:f,blob:b||null,kept:true};},function(){return {f:f,blob:null,kept:true};});}))
     .then(function(list){if(editingTask!==t.id)return;pendingF=list.concat(pendingF);renderPendingFiles();});
 }
-function openTask(t){taskForm(t||null);var d=el("a-sheet");sheetOpen(d);d.querySelector(".sheet-in").scrollTop=0;}
+function openTask(t,kind){taskForm(t||null,kind);var d=el("a-sheet");sheetOpen(d);d.querySelector(".sheet-in").scrollTop=0;}
 function closeTask(){sheetShut(el("a-sheet"));}
 el("a-sheet").addEventListener("close",function(){dropPendingF();editingTask=null;aGen++;});
 el("a-sheet").addEventListener("click",function(e){if(e.target===this)closeTask();});
@@ -2110,9 +2319,9 @@ function takeFiles(list){
 ["a-file","a-photo"].forEach(function(id){el(id).addEventListener("change",function(){
   var l=Array.prototype.slice.call(this.files||[]);this.value="";takeFiles(l);});});
 el("a-form").addEventListener("submit",function(e){e.preventDefault();
-  var title=el("a-name").value.trim(),date=el("a-date").value,time=el("a-time").value||"23:59";
+  var title=el("a-name").value.trim(),date=el("a-date").value,time=el("a-time").value||KIND_FORM[aKind].at,kind=aKind;
   if(!title){aErr("Give it a name.");el("a-name").focus();return;}
-  if(!/^\d{4}-\d\d-\d\d$/.test(date)){aErr("Pick the due date.");el("a-date").focus();return;}
+  if(!/^\d{4}-\d\d-\d\d$/.test(date)){aErr(kind==="assignment"?"Pick the due date.":"Pick the date.");el("a-date").focus();return;}
   var was=editingTask,prev=was?tasks.filter(function(t){return t.id===was;})[0]:null;
   if(was&&!prev){closeTask();return;}   // deleted on another phone in the meantime
   var kept=pendingF.filter(function(p){return p.kept;}),fresh=pendingF.filter(function(p){return !p.kept;});
@@ -2122,16 +2331,16 @@ el("a-form").addEventListener("submit",function(e){e.preventDefault();
   .then(function(stored){
     fresh.forEach(function(p){delete fileHold[p.f.id];});
     var added=stored.filter(Boolean),lost=stored.length-added.length;
-    var rec={id:was||newId(),title:title,course:el("a-course").value.trim(),due:date+"T"+time.slice(0,5),
+    var rec={id:was||newId(),kind:kind,title:title,course:el("a-course").value.trim(),due:date+"T"+time.slice(0,5),
       notes:el("a-notes").value.trim(),done:prev?prev.done||0:0,files:kept.map(function(p){return p.f;}).concat(added)};
     // Stored now, so their pictures carry on into the list rather than being let go.
     pendingF=[];el("a-save").disabled=false;closeTask();
-    var miss=lost?", but "+plural(lost,"file")+" couldn't be stored":"";
-    if(!prev){tasks=tasks.concat([rec]);save(K.tasks,tasks);dueChanged();
-      toast("Added · due "+dueWhen(dueAt(rec))+miss);announce(rec.title+" added, due "+dueWhen(dueAt(rec)));return;}
+    var miss=lost?", but "+plural(lost,"file")+" couldn't be stored":"",when=datePhrase(rec,dueAt(rec));when=when.charAt(0).toLowerCase()+when.slice(1);
+    if(!prev){tasks=tasks.concat([rec]);save(K.tasks,tasks);freshId=rec.id;dueChanged();
+      toast("Added · "+when+miss);announce(rec.title+" added, "+when);return;}
     var gone=(prev.files||[]).filter(function(f){return !rec.files.some(function(g){return g.id===f.id;});});
     gone.forEach(function(f){fileHold[f.id]=1;});
-    tasks=tasks.map(function(t){return t.id===rec.id?rec:t;});save(K.tasks,tasks);dueChanged();announce("Saved");
+    tasks=tasks.map(function(t){return t.id===rec.id?rec:t;});save(K.tasks,tasks);freshId=rec.id;dueChanged();announce("Saved");
     var later=setTimeout(function(){gone.forEach(function(f){delete fileHold[f.id];fdel(f.id).catch(function(){});fdrop(f.id);});},6500);
     toast("Saved"+miss,function(){clearTimeout(later);gone.forEach(function(f){delete fileHold[f.id];});
       tasks=tasks.map(function(t){return t.id===prev.id?prev:t;});save(K.tasks,tasks);
@@ -2673,23 +2882,24 @@ function closeEditor(){sheetShut(el("e-sheet"));}
 el("e-sheet").addEventListener("close",resetEdit);
 el("e-sheet").addEventListener("click",function(e){if(e.target===this)closeEditor();});
 el("e-x").addEventListener("click",closeEditor);
-// + adds an assignment on Due, and a block anywhere else: on Week, on the day in view.
-el("e-add").addEventListener("click",function(){if(view==="due"){openTask(null);return;}
+// Add adds to Due (an assignment, or the kind on show), and a block anywhere
+// else: on Week, on the day in view.
+el("e-add").addEventListener("click",function(){if(view==="due"){openTask(null,dueFilter);return;}
   openEditor(null);if(view==="week"){setDays([weekDay]);checkClash();}});
 // Everything drawn from the blocks, redrawn when the editor changes them.
 function blocksChanged(){renderEditList();renderToday();if(view==="week")keepFocus(renderWeek);}
 function renderEditList(){var box=el("e-list");box.innerHTML="";
-  if(!blocks.length){box.innerHTML='<p class="empty">No blocks yet. Tap <b>+</b> to add your first.</p>';return;}
+  if(!blocks.length){box.innerHTML='<p class="empty">No blocks yet. Tap <b>Add</b> to add your first.</p>';return;}
   var bad=blocks.filter(function(b){return clashes(b.start,b.mins,b.days,b.id).length;}).length;
   var h=document.createElement("p");h.className="sechead";
   h.innerHTML=bad?'All blocks · <span class="overlap">'+bad+' overlap</span> — tap one to fix':"All blocks · tap one to edit";
   box.appendChild(h);
   blocks.slice().sort(function(a,b){return toMin(a.start)-toMin(b.start);}).forEach(function(b){var t=typeOf(b.type);
-    var r=document.createElement("button");r.type="button";r.className="item";r.style.setProperty("--h",t.hue);r.setAttribute("aria-haspopup","dialog");
+    var r=document.createElement("button");r.type="button";r.className="item";r.setAttribute("data-tone",t.tone);r.setAttribute("aria-haspopup","dialog");
     r.innerHTML='<span class="cat"></span><span class="when"></span><span class="body"><span class="ttl"></span><span class="meta"></span></span><span></span>';
     r.querySelector(".when").textContent=fmt(toMin(b.start));r.querySelector(".ttl").textContent=b.activity;
     var c=clashes(b.start,b.mins,b.days,b.id);
-    r.querySelector(".meta").innerHTML='<span class="chip" style="--h:'+t.hue+'">'+esc(t.name)+'</span>'+esc(b.days.map(function(d){return DAYS[d];}).join(" "))+
+    r.querySelector(".meta").innerHTML='<span class="chip">'+esc(t.name)+'</span>'+esc(b.days.map(function(d){return DAYS[d];}).join(" "))+
       (c.length?' · <span class="overlap">Overlaps '+esc(c[0].b.activity)+(c.length>1?" +"+(c.length-1):"")+'</span>':"");
     r.addEventListener("click",function(){openEditor(b);});box.appendChild(r);});}
 el("e-form").addEventListener("submit",function(e){e.preventDefault();
@@ -2776,7 +2986,7 @@ var opened=null;
 function openBlock(b,k){
   var t=typeOf(b.type),s=toMin(b.start),e=s+b.mins,now=new Date(),m=minsNow(),today=k===key(now),isNow=today&&m>=s&&m<e;
   opened={b:b,k:k};
-  var sh=el("d-sheet");sh.style.setProperty("--h",t.hue);
+  var sh=el("d-sheet");sh.setAttribute("data-tone",t.tone);
   el("d-day").textContent=today?"Today, "+now.getDate()+" "+MONTHS[now.getMonth()]:"";
   el("d-art").innerHTML=ART[b.type]||ART.rest;
   el("d-title").textContent=b.activity;
@@ -2802,13 +3012,15 @@ el("d-edit").addEventListener("click",function(){var o=opened;closeBlock();if(o)
 // them, and a few blocks to start the timetable from, or none at all.
 var wlStep=0,starter=[];
 function wlShow(){
-  el("welcome").hidden=false;document.body.style.overflow="hidden";
+  el("welcome").hidden=false;document.body.style.overflow="hidden";appInert(true);
   el("wl-art").innerHTML=ART.plan;if(!el("wl-zone").options.length)fillZones(el("wl-zone"),"");
   wlGo(0);
 }
 function wlGo(n){
-  wlStep=n;
-  Array.prototype.forEach.call(document.querySelectorAll(".wl-step"),function(s){s.hidden=+s.getAttribute("data-step")!==n;});
+  var dir=n===wlStep?0:n>wlStep?1:-1;wlStep=n;
+  // The next step slides in from the right, the one before from the left.
+  Array.prototype.forEach.call(document.querySelectorAll(".wl-step"),function(s){var on=+s.getAttribute("data-step")===n;s.hidden=!on;
+    s.classList.remove("in");if(on&&dir&&!reduceMotion()){s.style.setProperty("--dir",dir);void s.offsetWidth;s.classList.add("in");}});
   Array.prototype.forEach.call(document.querySelectorAll(".wl-dots i"),function(d,i){d.classList.toggle("on",i===n);});
   if(n===3)buildStarter();
   el("welcome").scrollTop=0;
@@ -2838,7 +3050,7 @@ function buildStarter(){
   var box=el("wl-starter");box.innerHTML="";
   starter.forEach(function(x){
     var t=typeOf(x.b.type),s=toMin(x.b.start),b=document.createElement("button");b.type="button";b.className="st-item";
-    b.style.setProperty("--h",t.hue);b.setAttribute("aria-pressed",x.on?"true":"false");
+    b.setAttribute("data-tone",t.tone);b.setAttribute("aria-pressed",x.on?"true":"false");
     b.innerHTML='<span><b></b><small></small></span><i>'+CHECK+'</i>';
     b.querySelector("b").textContent=x.b.activity;
     b.querySelector("small").textContent=span(s,s+x.b.mins)+" · "+dayWords(x.b.days);
@@ -2848,7 +3060,7 @@ function buildStarter(){
 }
 function overlaps(a,b){var as=toMin(a.start),bs=toMin(b.start);
   return as<bs+b.mins&&bs<as+a.mins&&a.days.some(function(d){return b.days.indexOf(d)!==-1;});}
-function wlDone(){el("welcome").hidden=true;document.body.style.overflow="";buildTabs();show("today",false);}
+function wlDone(){el("welcome").hidden=true;document.body.style.overflow="";appInert(false);buildTabs();show("today",false);}
 function finishWelcome(withBlocks){
   prefs={name:el("wl-name").value.trim().slice(0,40),wake:el("wl-wake").value||"07:00",sleep:el("wl-sleep").value||"23:00",
     solat:el("wl-solat").checked,at:Date.now()};
@@ -3190,6 +3402,8 @@ function renderSync(){
   // The gear says when Sync needs you.
   var need=!!(sm.ended||on&&sm.err&&sm.err!=="offline"),g=el("set-open");
   g.classList.toggle("alert",need);g.setAttribute("aria-label",need?"Settings, Sync needs you":"Settings");
+  var fs=document.querySelector('.fan-item[data-act="settings"]');el("home").classList.toggle("alert",need);
+  fs.querySelector(".fi-c").classList.toggle("alert",need);fs.setAttribute("aria-label",need?"Settings, Sync needs you":"Settings");
 }
 function syncMsg(id,t){var n=el(id);n.textContent=t;n.classList.toggle("hide",!t);}
 // Email and password, in your own project. With email confirmation off there,
@@ -3476,106 +3690,104 @@ el("r-copy-fn").addEventListener("click",function(){copyText(TEXT["supabase/func
 // ---------- navigation ----------
 var VIEWS={today:"Today",week:"Week",due:"Due",solat:"Solat",edit:"Schedule"},ALL=["today","week","due","solat","edit"];
 var ORDER=ALL.slice(),view="today",scrolls={};
-var bar=document.querySelector(".tabbar"),allTabs=bar.querySelectorAll("button[data-view]"),tabs=[];
-// Solat is a tab only while prayer times are on. The bar, its lens and the
-// magnifier inside the lens are sized to however many tabs there are.
+// Solat is a page only while prayer times are on; the Home menu holds
+// whichever pages there are.
 function buildTabs(){
   ORDER=ALL.filter(function(v){return v!=="solat"||pref("solat",false);});
-  tabs=[];Array.prototype.forEach.call(allTabs,function(b){var on=ORDER.indexOf(b.getAttribute("data-view"))!==-1;b.hidden=!on;if(on)tabs.push(b);});
-  bar.style.setProperty("--n",ORDER.length);buildMag();
-  if(ORDER.indexOf(view)<0)show("today",false);else bar.style.setProperty("--i",ORDER.indexOf(view));
+  fanBuild();
+  if(ORDER.indexOf(view)<0)show("today",false);
   el("t-solat").classList.toggle("hide",!pref("solat",false));
 }
-// Each tab keeps its place when you come back to it, as on iOS, and tapping the
-// tab you're already on goes back to the top.
-function show(name,fromBar){
+// Each page keeps its place when you come back to it, as on iOS, and picking
+// the page you're already on goes back to its top. fromMenu: picked in the
+// Home menu, rather than reached from a link on another page.
+function show(name,fromMenu){
   var again=name===view;scrolls[view]=window.scrollY;view=name;
   ALL.forEach(function(v){el("v-"+v).classList.toggle("hide",v!==name);});
-  tabs.forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-view")===name?"true":"false");});
-  bar.style.setProperty("--i",ORDER.indexOf(name));
+  fanMark();
   el("view-title").textContent=VIEWS[name];
-  // + adds what the tab is about. Settings sits beside it on Today and Schedule.
+  // Add adds what the page is about; Settings sits beside it on every page.
   var add=el("e-add");add.classList.toggle("hide",name==="solat");
-  add.setAttribute("aria-label",name==="due"?"Add an assignment":"Add a block");
-  el("set-open").classList.toggle("hide",name!=="today"&&name!=="edit");
+  add.setAttribute("aria-label",name==="due"?"Add "+KINDS[KINDS[dueFilter]?dueFilter:"assignment"].one:"Add a block");
   if(name==="today")renderToday(!again);if(name==="week")renderWeek();if(name==="due")renderDue();
   if(name==="edit")renderEditList();
   if(name==="solat"){renderSolat();refreshTimes();}
-  if(fromBar&&again)window.scrollTo({top:0,behavior:reduceMotion()?"auto":"smooth"});
-  else window.scrollTo(0,fromBar&&scrolls[name]||0);
+  // A new page fades up into place, its title with it.
+  if(!again&&!reduceMotion())[el("v-"+name),el("view-title")].forEach(function(n){n.classList.remove("view-in");void n.offsetWidth;n.classList.add("view-in");});
+  if(fromMenu&&again)window.scrollTo({top:0,behavior:reduceMotion()?"auto":"smooth"});
+  else window.scrollTo(0,fromMenu&&scrolls[name]||0);
 }
-Array.prototype.forEach.call(allTabs,function(b){
+
+// ---------- the Home menu ----------
+// The pages, and Settings, fan out of Home into a half circle above it and
+// stay put until one is picked, Home is tapped again, a tap lands anywhere
+// else, or Escape is pressed. Tab goes from Home into them, the arrow keys
+// move between them, and Tab out of the last closes the menu.
+var fan=el("fan"),home=el("home"),fanItems=[],fanIsOpen=false;
+function fanBuild(){
+  fanItems=[];
+  Array.prototype.forEach.call(fan.querySelectorAll(".fan-item"),function(b){
+    var v=b.getAttribute("data-view"),on=!v||ORDER.indexOf(v)>=0;b.parentNode.hidden=!on;if(on)fanItems.push(b);});
+  fanPlace();fanMark();
+}
+function fanMark(){fanItems.forEach(function(b){if(b.getAttribute("data-view")===view)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");});}
+// The stops as large as fit: the biggest circles, on the smallest half circle
+// that keeps each clear of the next, that still fits inside the screen. Each
+// stop is its circle (c) with its name under it, in a box w wide; l is the
+// size of the name. Where there's room the ends lift a little off the level
+// of Home's centre, and the whole half circle sits 12px above it, so the
+// names at the ends stay clear of the bottom of the screen.
+var FAN_SIZES=[[58,78,12.5],[52,70,12],[46,62,11.5],[42,56,11],[40,54,11]];
+function fanPlace(){
+  var n=fanItems.length,half=Math.min(document.documentElement.clientWidth||innerWidth,760)/2-8,pick=null,z,li;
+  for(z=0;z<FAN_SIZES.length&&!pick;z++)for(li=0;li<3&&!pick;li++){
+    var c=FAN_SIZES[z][0],w=FAN_SIZES[z][1],l=FAN_SIZES[z][2],h=c+4+l*1.25;
+    var lift=[10,5,0][li]*Math.PI/180,a0=Math.PI-lift,step=n>1?(Math.PI-2*lift)/(n-1):0,r;
+    for(r=c/2+64;r<=200;r+=2){var ok=true;
+      for(var i=0;i<n-1&&ok;i++){var a=a0-i*step,b=a-step;
+        if(Math.abs(r*(Math.cos(a)-Math.cos(b)))<w+8&&Math.abs(r*(Math.sin(a)-Math.sin(b)))<h+8)ok=false;}
+      if(ok)break;}
+    var last=z===FAN_SIZES.length-1&&li===2;
+    if(r*Math.cos(lift)+w/2<=half||last)pick={c:c,w:w,l:l,r:last?Math.min(r,half-w/2):r,a0:a0,step:step};
+  }
+  fan.style.setProperty("--c",pick.c+"px");fan.style.setProperty("--w",pick.w+"px");fan.style.setProperty("--fl",pick.l+"px");fan.style.setProperty("--n",n);
+  fanItems.forEach(function(b,i){var a=pick.a0-i*pick.step;
+    b.style.setProperty("--x",(pick.r*Math.cos(a)).toFixed(1)+"px");b.style.setProperty("--y",(-pick.r*Math.sin(a)-12).toFixed(1)+"px");b.style.setProperty("--k",i);});
+}
+function fanSet(open,backHome){
+  if(open===fanIsOpen)return;fanIsOpen=open;
+  if(open)fanPlace();
+  fan.classList.toggle("open",open);
+  home.setAttribute("aria-expanded",open?"true":"false");
+  home.setAttribute("aria-label",open?"Close menu":"Menu");home.setAttribute("data-tip",open?"Close menu":"Menu");
+  if(!open&&backHome)home.focus({preventScroll:true});
+}
+home.addEventListener("click",function(){fanSet(!fanIsOpen);});
+el("fan-scrim").addEventListener("click",function(){fanSet(false);});
+Array.prototype.forEach.call(fan.querySelectorAll(".fan-item"),function(b){
   b.addEventListener("click",function(){
-    if(performance.now()-dropped<500)return;   // the drag that just ended has already chosen
-    var v=b.getAttribute("data-view");if(v!==view)hop(ORDER.indexOf(v));show(v,true);});});
-
-// ---------- the lens ----------
-// Like iOS 26's tab bar, the lens can be dragged as well as tapped. Pressed or
-// dragged, it lifts and magnifies the tabs under it, stretches the faster it
-// goes, and drops onto the nearest tab when let go.
-// Lifted, the droplet is 1.3 tabs wide and nearly the bar's height, and
-// shows what's under it at 1.2 times.
-var LX=1.3,LY=1.15,MAG=1.2,mag=document.createElement("span"),magTabs=[],grab=null,dropped=-1e9;
-mag.className="mag";
-// The magnifier holds a copy of the tabs that are showing, rebuilt with them.
-function buildMag(){mag.innerHTML="";magTabs=[];
-  tabs.forEach(function(b,j){b.style.setProperty("--j",j);
-    var c=document.createElement("span");c.innerHTML=b.innerHTML;mag.appendChild(c);magTabs.push(c);});}
-el("lens").appendChild(mag);
-function lensSet(i,m,lx,ly){var s=bar.style;if(i!==null)s.setProperty("--i",i);
-  s.setProperty("--mag",m);s.setProperty("--lx",lx);s.setProperty("--ly",ly);}
-function magOn(i){magTabs.forEach(function(c,j){c.classList.toggle("on",j===i);});}
-function lift(i){clearTimeout(settle.t);magOn(i);bar.classList.add("lifted");lensSet(null,MAG,LX,LY);}
-// Back to a resting pill. The copy is dropped only once it has shrunk back
-// to the tabs' own size.
-function settle(){lensSet(null,1,1,1);clearTimeout(settle.t);
-  settle.t=setTimeout(function(){if(!grab)bar.classList.remove("lifted");},reduceMotion()?0:360);}
-// A tap gets a small hop: the lens lifts on its way to the new tab.
-function hop(i){if(reduceMotion())return;lift(i);settle.t=setTimeout(settle,170);}
-function lensNow(){return parseFloat(getComputedStyle(bar).getPropertyValue("--i"))||0;}
-bar.addEventListener("pointerdown",function(e){
-  if(grab||e.pointerType==="mouse"&&e.button!==0)return;
-  var r=bar.getBoundingClientRect(),w=(r.width-12)/tabs.length,at=lensNow();
-  grab={id:e.pointerId,x0:e.clientX,left:r.left+6,w:w,cur:at,to:at,st:0,t:0,raf:0,on:false};
-  // The selected tab can be picked up: pressing it lifts the lens straight away.
-  if(Math.floor((e.clientX-grab.left)/w)===ORDER.indexOf(view))lift(Math.round(at));
+    var v=b.getAttribute("data-view");fanSet(false,true);
+    if(v)show(v,true);else openSettings();
+  });
 });
-bar.addEventListener("pointermove",function(e){
-  var g=grab;if(!g||e.pointerId!==g.id)return;
-  if(!g.on){if(Math.abs(e.clientX-g.x0)<6)return;
-    g.on=true;try{bar.setPointerCapture(g.id);}catch(_){}
-    bar.classList.add("dragging");lift(Math.round(g.cur));g.raf=requestAnimationFrame(follow);}
-  g.to=Math.max(0,Math.min(tabs.length-1,(e.clientX-g.left)/g.w-.5));
+fan.addEventListener("keydown",function(e){
+  if(!fanIsOpen)return;
+  var n=fanItems.length,i=fanItems.indexOf(document.activeElement),to=-1;
+  if(e.key==="ArrowRight"||e.key==="ArrowDown")to=i<0?0:(i+1)%n;
+  else if(e.key==="ArrowLeft"||e.key==="ArrowUp")to=i<0?n-1:(i-1+n)%n;
+  else if(e.key==="Home")to=0;else if(e.key==="End")to=n-1;
+  if(to>=0){e.preventDefault();fanItems[to].focus();}
 });
-// The lens chases the finger a little behind, which is what makes it look
-// liquid, and stretches along its way with its speed.
-function follow(t){
-  var g=grab;if(!g)return;
-  var dt=g.t?Math.min(50,Math.max(1,t-g.t)):16.7,was=g.cur;g.t=t;
-  g.cur+=(g.to-g.cur)*(1-Math.pow(.6,dt/16.7));
-  var v=Math.abs(g.cur-was)/dt*16.7;   // tabs per 60Hz frame
-  g.st+=((reduceMotion()?0:Math.min(.3,v*.6))-g.st)*.35;
-  lensSet(g.cur.toFixed(4),MAG,(LX+g.st).toFixed(3),(LY-g.st*.4).toFixed(3));
-  magOn(Math.round(g.cur));
-  g.raf=requestAnimationFrame(follow);
-}
-// Listened for on the window, so a press that wanders off the bar still ends.
-function drop(e){
-  var g=grab;if(!g||e.pointerId!==g.id)return;grab=null;
-  if(!g.on){settle();return;}   // a press without a drag: its click does the rest
-  cancelAnimationFrame(g.raf);dropped=performance.now();bar.classList.remove("dragging");
-  var i=e.type==="pointercancel"?ORDER.indexOf(view):Math.round(g.cur);
-  magOn(i);settle();
-  if(ORDER[i]!==view)show(ORDER[i],true);else bar.style.setProperty("--i",i);
-}
-window.addEventListener("pointerup",drop);window.addEventListener("pointercancel",drop);
-
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&fanIsOpen){e.preventDefault();fanSet(false,true);}});
+fan.addEventListener("focusout",function(e){if(fanIsOpen&&e.relatedTarget&&!fan.contains(e.relatedTarget))fanSet(false);});
+window.addEventListener("resize",function(){clearTimeout(fanPlace.t);fanPlace.t=setTimeout(fanPlace,120);});
+// While the welcome or focus mode covers the app, nothing under it can be
+// reached with Tab, and the menu folds away.
+function appInert(on){[document.querySelector(".app"),fan].forEach(function(x){if(on)x.setAttribute("inert","");else x.removeAttribute("inert");});
+  if(on)fanSet(false);}
 
 // ---------- boot ----------
 resetEdit();syncTypeScale();aNote("");
-// Paint the right phase before the first frame, with the cross-fade off.
-(function(){var rs=document.documentElement.style;rs.transition="none";paintSky();
-  requestAnimationFrame(function(){requestAnimationFrame(function(){rs.transition="";});});})();
 buildTabs();
 renderToday(true);renderBackupStatus();setTimeout(warmFiles,1500);
 // The first run starts with the welcome; after that, straight into Today.
@@ -3593,13 +3805,13 @@ if(prefs&&!homeApp()&&!load(K.install,false))el("install").classList.remove("hid
 el("install-x").addEventListener("click",function(){el("install").classList.add("hide");save(K.install,true);});
 
 window.addEventListener("resize",syncTypeScale);window.addEventListener("pageshow",syncTypeScale);
-document.addEventListener("visibilitychange",function(){if(document.hidden)return;syncTypeScale();paintSky();
+document.addEventListener("visibilitychange",function(){if(document.hidden)return;syncTypeScale();
   if(view==="today")keepFocus(renderToday);if(view==="due")keepFocus(renderDue);if(view==="solat")keepFocus(renderSolat);
   refreshTimes();if(focusBlock)requestWake();syncNow();});
 window.addEventListener("online",function(){refreshTimes();syncNow();});
 // The half-minute refresh waits for a card that's under a finger mid-swipe,
 // and for any sheet over the page to close.
-setInterval(function(){if(document.hidden)return;paintSky();
+setInterval(function(){if(document.hidden)return;
   if(document.querySelector(".swiping")||document.querySelector("dialog[open]"))return;
   if(view==="today"&&!focusBlock)keepFocus(renderToday);
   if(view==="due")keepFocus(renderDue);
