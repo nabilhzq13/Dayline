@@ -3336,8 +3336,9 @@ function pull(){
     // Break, the app Dayline grew from, syncs the same way and names its rows
     // the same, so its project would pass Connect. Its rows are never taken
     // in or written over: a project holding them is turned away here, before
-    // anything is read or sent.
-    if((rows||[]).some(function(r){return r.key==="climbs";})){
+    // anything is read or sent. Break never syncs "prefs", so a project with
+    // climbing sessions and prefs (Nabuzy's, Dayline's personal sibling) is fine.
+    if((rows||[]).some(function(r){return r.key==="climbs";})&&!(rows||[]).some(function(r){return r.key==="prefs";})){
       var no=new Error("That project holds Break's data. Use a project of Dayline's own: Use a different project.");no.status=409;throw no;}
     // On a phone that hasn't synced with this account before, the cloud's copy
     // wins, unless it holds nothing and this phone has the real thing. After
